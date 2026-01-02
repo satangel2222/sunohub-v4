@@ -1,5 +1,3 @@
-import { createClient } from '@supabase/supabase-js';
-
 export default async function handler(request, response) {
     // 1. Get ID from query
     const rawId = request.query.id;
@@ -10,37 +8,44 @@ export default async function handler(request, response) {
     }
 
     try {
-        // 2. Init Supabase (Using env vars injected by Vercel)
         const supabaseUrl = process.env.VITE_SUPABASE_URL;
         const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
 
         if (!supabaseUrl || !supabaseKey) {
             console.error('Missing Supabase Environment Variables');
+            // If Env vars missing, fallback to static app
             return response.redirect(`/song/${id}`);
         }
 
-        const supabase = createClient(supabaseUrl, supabaseKey);
+        // 2. Fetch Song Data (Using native fetch to avoid SDK dependency issues)
+        const apiUrl = `${supabaseUrl}/rest/v1/songs?id=eq.${id}&select=*`;
+        const fetchRes = await fetch(apiUrl, {
+            headers: {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`
+            }
+        });
 
-        // 3. Fetch Song Data
-        const { data: song, error } = await supabase
-            .from('songs')
-            .select('*')
-            .eq('id', id)
-            .single();
+        if (!fetchRes.ok) {
+            throw new Error(`Supabase API error: ${fetchRes.status} ${fetchRes.statusText}`);
+        }
 
-        if (error || !song) {
-            console.error('Song not found:', error);
+        const data = await fetchRes.json();
+        const song = data && data.length > 0 ? data[0] : null;
+
+        if (!song) {
+            console.error('Song not found in DB');
             return response.redirect(`/song/${id}`); // Fallback
         }
 
-        // 4. Construct Rich Metadata HTML
+        // 3. Construct Rich Metadata HTML
         const title = `${song.title} - ${song.artist}`;
         const description = `Listen to this AI-generated masterpiece on SunoHub.`;
         const imageUrl = song.image_url;
         const audioUrl = song.audio_url;
         const appUrl = `https://sunohub-v4.vercel.app/song/${id}`;
 
-        // 5. Build Redirect URL with Query Params
+        // 4. Build Redirect URL with Query Params
         const queryParams = new URLSearchParams(request.query);
         queryParams.delete('id'); // Remove the ID itself as it's in the path
         const queryString = queryParams.toString();
@@ -85,18 +90,14 @@ export default async function handler(request, response) {
       </html>
     `;
 
-        // 6. Send Response
+        // 5. Send Response
         response.setHeader('Content-Type', 'text/html');
-        response.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate'); // Cache for speed
+        response.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
         return response.status(200).send(html);
 
     } catch (e) {
         console.error('API Error:', e);
-        return response.status(500).json({
-            error: e.message, stack: e.stack, env: {
-                hasUrl: !!process.env.VITE_SUPABASE_URL,
-                hasKey: !!process.env.VITE_SUPABASE_ANON_KEY
-            }
-        });
+        // Error fallback
+        return response.status(500).json({ error: e.message, type: 'Manual Fetch Error' });
     }
 }
