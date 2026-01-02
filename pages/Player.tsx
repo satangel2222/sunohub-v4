@@ -540,7 +540,13 @@ const Player: React.FC = () => {
                         {/* Copy Link Input */}
                         <div className="flex gap-2">
                             <input type="text" readOnly value={shareUrl} className="flex-1 text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 outline-none dark:text-gray-300" />
-                            <button onClick={() => { navigator.clipboard.writeText(shareUrl); alert("已复制"); }} className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-md hover:bg-indigo-700 transition">复制链接</button>
+                            <button onClick={() => {
+                                const hook = `🎵 发现一首神曲！\n${song.title} - ${song.artist}\n\n👉 立即试听: ${shareUrl}`;
+                                navigator.clipboard.writeText(hook);
+                                alert("超级文案已复制！快去分享吧！");
+                            }} className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-md hover:bg-indigo-700 transition flex items-center gap-2">
+                                <FileText size={18} /> 超级复制
+                            </button>
                         </div>
                     </div>
                 </div>
