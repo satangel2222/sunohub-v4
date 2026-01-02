@@ -537,15 +537,22 @@ const Player: React.FC = () => {
                             </code>
                         </div>
 
-                        {/* Copy Link Input */}
-                        <div className="flex gap-2">
-                            <input type="text" readOnly value={shareUrl} className="flex-1 text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 outline-none dark:text-gray-300" />
+                        {/* Super Copy Section */}
+                        <div className="flex flex-col gap-3">
+                            <div className="relative">
+                                <textarea
+                                    readOnly
+                                    value={`🎵 发现一首神曲！\n${song.title} - ${song.artist}\n\n👉 立即试听: ${shareUrl}`}
+                                    className="w-full h-24 text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 outline-none dark:text-gray-300 resize-none font-sans leading-relaxed"
+                                />
+                                <div className="absolute top-2 right-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-[10px] rounded-md font-bold">推荐文案</div>
+                            </div>
                             <button onClick={() => {
                                 const hook = `🎵 发现一首神曲！\n${song.title} - ${song.artist}\n\n👉 立即试听: ${shareUrl}`;
                                 navigator.clipboard.writeText(hook);
                                 alert("超级文案已复制！快去分享吧！");
-                            }} className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-md hover:bg-indigo-700 transition flex items-center gap-2">
-                                <FileText size={18} /> 超级复制
+                            }} className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-md hover:bg-indigo-700 transition flex items-center justify-center gap-2 active:scale-95">
+                                <FileText size={18} /> 一键复制超级文案
                             </button>
                         </div>
                     </div>
