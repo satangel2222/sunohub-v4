@@ -1,9 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-export default async function handler(request: any, response: any) {
+export default async function handler(request, response) {
     // 1. Get ID from query
     const rawId = request.query.id;
-    const id = Array.isArray(rawId) ? rawId[0] : (rawId as string);
+    const id = Array.isArray(rawId) ? rawId[0] : rawId;
 
     if (!id) {
         return response.redirect('/');
@@ -11,8 +11,14 @@ export default async function handler(request: any, response: any) {
 
     try {
         // 2. Init Supabase (Using env vars injected by Vercel)
-        const supabaseUrl = process.env.VITE_SUPABASE_URL!;
-        const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY!;
+        const supabaseUrl = process.env.VITE_SUPABASE_URL;
+        const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+
+        if (!supabaseUrl || !supabaseKey) {
+            console.error('Missing Supabase Environment Variables');
+            return response.redirect(`/song/${id}`);
+        }
+
         const supabase = createClient(supabaseUrl, supabaseKey);
 
         // 3. Fetch Song Data
@@ -33,6 +39,12 @@ export default async function handler(request: any, response: any) {
         const imageUrl = song.image_url;
         const audioUrl = song.audio_url;
         const appUrl = `https://sunohub-v4.vercel.app/song/${id}`;
+
+        // 5. Build Redirect URL with Query Params
+        const queryParams = new URLSearchParams(request.query);
+        queryParams.delete('id'); // Remove the ID itself as it's in the path
+        const queryString = queryParams.toString();
+        const finalRedirectUrl = queryString ? `${appUrl}?${queryString}` : appUrl;
 
         const html = `
       <!DOCTYPE html>
@@ -64,16 +76,16 @@ export default async function handler(request: any, response: any) {
         <meta property="twitter:player:height" content="500" />
 
         <!-- Redirect for Humans -->
-        <meta http-equiv="refresh" content="0;url=${appUrl}" />
+        <meta http-equiv="refresh" content="0;url=${finalRedirectUrl}" />
       </head>
       <body>
-        <p>Redirecting to <a href="${appUrl}">SunoHub Player</a>...</p>
-        <script>window.location.href = "${appUrl}";</script>
+        <p>Redirecting to <a href="${finalRedirectUrl}">SunoHub Player</a>...</p>
+        <script>window.location.href = "${finalRedirectUrl}";</script>
       </body>
       </html>
     `;
 
-        // 5. Send Response
+        // 6. Send Response
         response.setHeader('Content-Type', 'text/html');
         response.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate'); // Cache for speed
         return response.status(200).send(html);
