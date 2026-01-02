@@ -92,6 +92,11 @@ export default async function handler(request, response) {
 
     } catch (e) {
         console.error('API Error:', e);
-        return response.redirect(`/song/${id}`);
+        return response.status(500).json({
+            error: e.message, stack: e.stack, env: {
+                hasUrl: !!process.env.VITE_SUPABASE_URL,
+                hasKey: !!process.env.VITE_SUPABASE_ANON_KEY
+            }
+        });
     }
 }
