@@ -11,8 +11,8 @@ export default async function handler(request: any, response: any) {
 
     try {
         // 2. Init Supabase (Using env vars injected by Vercel)
-        const supabaseUrl = process.env.VITE_SUPABASE_URL;
-        const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+        const supabaseUrl = process.env.VITE_SUPABASE_URL!;
+        const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY!;
         const supabase = createClient(supabaseUrl, supabaseKey);
 
         // 3. Fetch Song Data
