@@ -7,7 +7,7 @@
   "rewrites": [
     {
       "source": "/s/:id",
-      "destination": "/api/share?id=:id"
+      "destination": "/api/hello?id=:id"
     },
     {
       "source": "/((?!api/.*).*)",
