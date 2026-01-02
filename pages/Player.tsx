@@ -516,7 +516,7 @@ const Player: React.FC = () => {
                                 {showWeChatQR && (
                                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-3 bg-white rounded-xl shadow-xl border z-50 animate-in fade-in zoom-in w-40 text-center">
                                         <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(shareUrl)}`} alt="WeChat QR" className="w-32 h-32 mx-auto" />
-                                        <div className="text-[10px] mt-2 text-gray-500 font-bold">微信扫一扫 → 发送给朋友</div>
+                                        <div className="text-[10px] mt-2 text-gray-500 font-bold whitespace-nowrap">手机扫码 → 点右上角 ... 分享</div>
                                     </div>
                                 )}
                             </div>
