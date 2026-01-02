@@ -294,12 +294,12 @@ const Player: React.FC = () => {
             }
         }
 
-        // 3. Construct clean Production URL
+        // 3. Construct Magic Link (server-side proxy for rich previews)
         if (finalId) {
-            return `https://sunohub-v4.vercel.app/song/${finalId}`;
+            return `https://sunohub-v4.vercel.app/s/${finalId}`;
         }
 
-        // 4. Absolute Fallback: Never show blob! Show clean home.
+        // 4. Absolute Fallback
         return 'https://sunohub-v4.vercel.app/';
     }, [songId]);
 
