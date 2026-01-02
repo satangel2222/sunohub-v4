@@ -235,7 +235,6 @@ const Feed: React.FC = () => {
                                                 {!isManageMode && canDelete && (
                                                     <button
                                                         onClick={(e) => {
-                                                            console.log("Delete button clicked for:", song.title);
                                                             e.preventDefault();
                                                             e.stopPropagation();
                                                             if (confirm(`彻底删除《${song.title}》吗？`)) {
