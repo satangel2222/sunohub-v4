@@ -296,11 +296,11 @@ const Player: React.FC = () => {
 
         // 3. Construct clean Production URL
         if (finalId) {
-            return `https://sunohub-v3.vercel.app/song/${finalId}`;
+            return `https://sunohub-v4.vercel.app/song/${finalId}`;
         }
 
         // 4. Absolute Fallback: Never show blob! Show clean home.
-        return 'https://sunohub-v3.vercel.app/';
+        return 'https://sunohub-v4.vercel.app/';
     }, [songId]);
 
     const displayTitle = song ? `${song.title} - ${song.artist} | SunoHub` : 'SunoHub Player';
