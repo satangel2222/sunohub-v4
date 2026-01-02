@@ -487,96 +487,105 @@ const Player: React.FC = () => {
                 className="hidden"
             />
 
-            {showShareModal && (
-                <div className="fixed inset-0 z-[110] flex items-center justify-center px-4 animate-fade-in-up">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowShareModal(false)}></div>
-                    <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-lg relative p-8 border border-gray-100 dark:border-gray-700">
-                        <button onClick={() => setShowShareModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><X size={20} /></button>
-                        <h3 className="text-2xl font-bold text-center mb-8 dark:text-white">分享歌曲</h3>
+    // Unified Super Hook Text
+    const shareText = useMemo(() => {
+        if (!song) return '';
+            return `🎵 发现一首神曲！\n${song.title} - ${song.artist}\n\n👉 立即试听: ${shareUrl}`;
+    }, [song, shareUrl]);
 
-                        {/* Social Buttons Grid */}
-                        <div className="grid grid-cols-4 gap-6 mb-8">
-                            <button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`${song.title} on SunoHub! ${shareUrl}`)}`, '_blank')} className="flex flex-col items-center gap-2 group">
-                                <div className="w-14 h-14 bg-[#25D366] rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition"><WhatsAppIcon /></div>
-                                <span className="text-xs font-medium dark:text-gray-300">WhatsApp</span>
-                            </button>
+            return (
+            <div className={`mx-auto animate-fade-in-up relative ${isEmbed ? 'p-0 w-full h-screen overflow-hidden bg-white dark:bg-gray-900' : 'pt-4 md:pt-8 pb-20'}`}>
+                {/* ... (previous JSX remains unchanged) ... */}
 
-                            <div className="relative group">
-                                <button onClick={() => setShowWeChatQR(!showWeChatQR)} className="flex flex-col items-center gap-2 w-full">
-                                    <div className="w-14 h-14 bg-[#07C160] rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition"><WeChatIcon /></div>
-                                    <span className="text-xs font-medium dark:text-gray-300">微信</span>
+                {showShareModal && (
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center px-4 animate-fade-in-up">
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowShareModal(false)}></div>
+                        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-lg relative p-8 border border-gray-100 dark:border-gray-700">
+                            <button onClick={() => setShowShareModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><X size={20} /></button>
+                            <h3 className="text-2xl font-bold text-center mb-8 dark:text-white">分享歌曲</h3>
+
+                            {/* Social Buttons Grid */}
+                            <div className="grid grid-cols-4 gap-6 mb-8">
+                                <button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank')} className="flex flex-col items-center gap-2 group">
+                                    <div className="w-14 h-14 bg-[#25D366] rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition"><WhatsAppIcon /></div>
+                                    <span className="text-xs font-medium dark:text-gray-300">WhatsApp</span>
                                 </button>
-                                {/* WeChat QR Popup */}
-                                {showWeChatQR && (
-                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-3 bg-white rounded-xl shadow-xl border z-50 animate-in fade-in zoom-in">
-                                        <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(shareUrl)}`} alt="WeChat QR" className="w-32 h-32" />
-                                        <div className="text-[10px] text-center mt-2 text-gray-500">微信扫码分享</div>
-                                    </div>
-                                )}
+
+                                <div className="relative group">
+                                    <button onClick={() => setShowWeChatQR(!showWeChatQR)} className="flex flex-col items-center gap-2 w-full">
+                                        <div className="w-14 h-14 bg-[#07C160] rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition"><WeChatIcon /></div>
+                                        <span className="text-xs font-medium dark:text-gray-300">微信</span>
+                                    </button>
+                                    {/* WeChat QR Popup */}
+                                    {showWeChatQR && (
+                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-3 bg-white rounded-xl shadow-xl border z-50 animate-in fade-in zoom-in w-40 text-center">
+                                            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(shareUrl)}`} alt="WeChat QR" className="w-32 h-32 mx-auto" />
+                                            <div className="text-[10px] mt-2 text-gray-500 font-bold">微信扫一扫 -> 发送给朋友</div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, '_blank')} className="flex flex-col items-center gap-2 group">
+                                    <div className="w-14 h-14 bg-black rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition"><XIcon /></div>
+                                    <span className="text-xs font-medium dark:text-gray-300">Twitter</span>
+                                </button>
+
+                                <button onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank')} className="flex flex-col items-center gap-2 group">
+                                    <div className="w-14 h-14 bg-[#1877F2] rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition"><FacebookIcon /></div>
+                                    <span className="text-xs font-medium dark:text-gray-300">Facebook</span>
+                                </button>
                             </div>
 
-                            <button onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${song.title} by ${song.artist}`)}&url=${encodeURIComponent(shareUrl)}`, '_blank')} className="flex flex-col items-center gap-2 group">
-                                <div className="w-14 h-14 bg-black rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition"><XIcon /></div>
-                                <span className="text-xs font-medium dark:text-gray-300">Twitter</span>
-                            </button>
-
-                            <button onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank')} className="flex flex-col items-center gap-2 group">
-                                <div className="w-14 h-14 bg-[#1877F2] rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition"><FacebookIcon /></div>
-                                <span className="text-xs font-medium dark:text-gray-300">Facebook</span>
-                            </button>
-                        </div>
-
-                        {/* Embed Code Section */}
-                        <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 mb-6">
-                            <div className="flex justify-between items-center mb-2">
-                                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">嵌入播放器 (Embed)</div>
-                                <button onClick={() => { navigator.clipboard.writeText(`<iframe src="${shareUrl}?embed=true" width="100%" height="450" frameborder="0"></iframe>`); alert("代码已复制"); }} className="text-indigo-600 text-xs font-bold hover:underline">复制全部</button>
+                            {/* Embed Code Section */}
+                            <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 mb-6">
+                                <div className="flex justify-between items-center mb-2">
+                                    <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">嵌入播放器 (Embed)</div>
+                                    <button onClick={() => { navigator.clipboard.writeText(`<iframe src="${shareUrl}?embed=true" width="100%" height="450" frameborder="0"></iframe>`); alert("代码已复制"); }} className="text-indigo-600 text-xs font-bold hover:underline">复制全部</button>
+                                </div>
+                                <code className="block w-full bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg p-3 text-xs text-gray-600 dark:text-gray-400 break-all cursor-text font-mono">
+                                    &lt;iframe src="{shareUrl}?embed=true" width="100%" height="450" frameborder="0"&gt;&lt;/iframe&gt;
+                                </code>
                             </div>
-                            <code className="block w-full bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg p-3 text-xs text-gray-600 dark:text-gray-400 break-all cursor-text font-mono">
-                                &lt;iframe src="{shareUrl}?embed=true" width="100%" height="450" frameborder="0"&gt;&lt;/iframe&gt;
-                            </code>
-                        </div>
 
-                        {/* Super Copy Section */}
-                        <div className="flex flex-col gap-3">
-                            <div className="relative">
-                                <textarea
-                                    readOnly
-                                    value={`🎵 发现一首神曲！\n${song.title} - ${song.artist}\n\n👉 立即试听: ${shareUrl}`}
-                                    className="w-full h-24 text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 outline-none dark:text-gray-300 resize-none font-sans leading-relaxed"
-                                />
-                                <div className="absolute top-2 right-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-[10px] rounded-md font-bold">推荐文案</div>
+                            {/* Super Copy Section */}
+                            <div className="flex flex-col gap-3">
+                                <div className="relative">
+                                    <textarea
+                                        readOnly
+                                        value={shareText}
+                                        className="w-full h-24 text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 outline-none dark:text-gray-300 resize-none font-sans leading-relaxed"
+                                    />
+                                    <div className="absolute top-2 right-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-[10px] rounded-md font-bold">推荐文案</div>
+                                </div>
+                                <button onClick={() => {
+                                    navigator.clipboard.writeText(shareText);
+                                    alert("超级文案已复制！快去分享吧！");
+                                }} className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-md hover:bg-indigo-700 transition flex items-center justify-center gap-2 active:scale-95">
+                                    <FileText size={18} /> 一键复制超级文案
+                                </button>
                             </div>
-                            <button onClick={() => {
-                                const hook = `🎵 发现一首神曲！\n${song.title} - ${song.artist}\n\n👉 立即试听: ${shareUrl}`;
-                                navigator.clipboard.writeText(hook);
-                                alert("超级文案已复制！快去分享吧！");
-                            }} className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-md hover:bg-indigo-700 transition flex items-center justify-center gap-2 active:scale-95">
-                                <FileText size={18} /> 一键复制超级文案
-                            </button>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
-    );
+                )}
+            </div>
+            );
 };
 
 const WhatsAppIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>
-);
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>
+            );
 
 const WeChatIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8.7 13.9c.2.2.6.2.8.1.2-.1.3-.3.3-.5 0-.2-.1-.4-.3-.5-.7-.4-1.2-1.1-1.2-1.9 0-1.2 1.2-2.3 2.9-2.3 1.7 0 3 1 3 2.3s-1.3 2.3-3 2.3c-.4 0-.7-.1-1.1-.2l-1.6.8.2-1.3c-.5-.7-.8-1.5-.8-2.4 0-2.4 2.7-4.4 6.1-4.4s6.1 2 6.1 4.4-2.7 4.4-6.1 4.4c-.6 0-1.3-.1-1.8-.3-.2-.1 0-.1 0-.1m7.4-4.8c-.3 0-.6.2-.6.5 0 .3.3.6.6.6.3 0 .6-.3.6-.6 0-.3-.3-.5-.6-.5m-3.8 0c-.3 0-.6.2-.6.5 0 .3.3.6.6.6.3 0 .6-.3.6-.6 0-.3-.3-.5-.6-.5m10.1 7.1c0 2.9-3.2 5.2-7.1 5.2-1 0-1.9-.1-2.8-.4l-2.4 1.3.4-2c-1.1-1.1-1.8-2.5-1.8-4.1 0-2.9 3.2-5.2 7.1-5.2s7.1 2.3 7.1 5.2zM24 16.2c0-3.6-3.7-6.5-8.3-6.5-4.6 0-8.3 2.9-8.3 6.5 0 3.6 3.7 6.5 8.3 6.5 1 0 1.9-.1 2.8-.3l2.8 1.5-.6-2.5c1.7-1.3 2.7-3.1 2.7-5.2zm-5.7.9c.5 0 .9-.4.9-.9 0-.5-.4-.9-.9-.9-.5 0-.9.4-.9.9 0 .5.4.9.9.9zm-4.7 0c.5 0 .9-.4.9-.9 0-.5-.4-.9-.9-.9-.5 0-.9.4-.9.9 0 .5.4.9.9.9z" /></svg>
-);
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8.7 13.9c.2.2.6.2.8.1.2-.1.3-.3.3-.5 0-.2-.1-.4-.3-.5-.7-.4-1.2-1.1-1.2-1.9 0-1.2 1.2-2.3 2.9-2.3 1.7 0 3 1 3 2.3s-1.3 2.3-3 2.3c-.4 0-.7-.1-1.1-.2l-1.6.8.2-1.3c-.5-.7-.8-1.5-.8-2.4 0-2.4 2.7-4.4 6.1-4.4s6.1 2 6.1 4.4-2.7 4.4-6.1 4.4c-.6 0-1.3-.1-1.8-.3-.2-.1 0-.1 0-.1m7.4-4.8c-.3 0-.6.2-.6.5 0 .3.3.6.6.6.3 0 .6-.3.6-.6 0-.3-.3-.5-.6-.5m-3.8 0c-.3 0-.6.2-.6.5 0 .3.3.6.6.6.3 0 .6-.3.6-.6 0-.3-.3-.5-.6-.5m10.1 7.1c0 2.9-3.2 5.2-7.1 5.2-1 0-1.9-.1-2.8-.4l-2.4 1.3.4-2c-1.1-1.1-1.8-2.5-1.8-4.1 0-2.9 3.2-5.2 7.1-5.2s7.1 2.3 7.1 5.2zM24 16.2c0-3.6-3.7-6.5-8.3-6.5-4.6 0-8.3 2.9-8.3 6.5 0 3.6 3.7 6.5 8.3 6.5 1 0 1.9-.1 2.8-.3l2.8 1.5-.6-2.5c1.7-1.3 2.7-3.1 2.7-5.2zm-5.7.9c.5 0 .9-.4.9-.9 0-.5-.4-.9-.9-.9-.5 0-.9.4-.9.9 0 .5.4.9.9.9zm-4.7 0c.5 0 .9-.4.9-.9 0-.5-.4-.9-.9-.9-.5 0-.9.4-.9.9 0 .5.4.9.9.9z" /></svg>
+            );
 
 const FacebookIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
-);
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
+            );
 
 const XIcon = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
-);
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+            );
 
-export default Player;
+            export default Player;
 
