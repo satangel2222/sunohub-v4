@@ -10,7 +10,7 @@
       "destination": "/api/social?id=:id"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api/.*).*)",
       "destination": "/index.html"
     }
   ]
