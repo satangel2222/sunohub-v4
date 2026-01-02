@@ -235,6 +235,7 @@ const Feed: React.FC = () => {
                                                 {!isManageMode && canDelete && (
                                                     <button
                                                         onClick={(e) => {
+                                                            console.log("Delete button clicked for:", song.title);
                                                             e.preventDefault();
                                                             e.stopPropagation();
                                                             if (confirm(`彻底删除《${song.title}》吗？`)) {
@@ -243,7 +244,7 @@ const Feed: React.FC = () => {
                                                                     .catch(err => alert("删除失败: " + err.message));
                                                             }
                                                         }}
-                                                        className="absolute top-2 right-2 p-1.5 bg-red-500/80 hover:bg-red-600 text-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 z-50"
+                                                        className="absolute top-2 right-2 p-1.5 bg-red-500/80 hover:bg-red-600 text-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 z-[100] cursor-pointer"
                                                         title="快速删除"
                                                     >
                                                         <Trash2 size={14} />
