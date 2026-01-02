@@ -508,7 +508,17 @@ const Player: React.FC = () => {
                             </button>
 
                             <div className="relative group">
-                                <button onClick={() => setShowWeChatQR(!showWeChatQR)} className="flex flex-col items-center gap-2 w-full">
+                                <button onClick={() => {
+                                    if (navigator.share) {
+                                        navigator.share({
+                                            title: `Listen to ${song?.title || 'Song'} on SunoHub`,
+                                            text: shareText,
+                                            url: shareUrl
+                                        }).catch(() => setShowWeChatQR(!showWeChatQR));
+                                    } else {
+                                        setShowWeChatQR(!showWeChatQR);
+                                    }
+                                }} className="flex flex-col items-center gap-2 w-full">
                                     <div className="w-14 h-14 bg-[#07C160] rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition"><WeChatIcon /></div>
                                     <span className="text-xs font-medium dark:text-gray-300">微信</span>
                                 </button>
