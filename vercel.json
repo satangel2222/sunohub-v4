@@ -7,7 +7,7 @@
   "rewrites": [
     {
       "source": "/s/:id",
-      "destination": "/api/s?id=:id"
+      "destination": "/api/social?id=:id"
     },
     {
       "source": "/(.*)",
