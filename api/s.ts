@@ -1,8 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-export default async function handler(request, response) {
+export default async function handler(request: any, response: any) {
     // 1. Get ID from query
-    const { id } = request.query;
+    const rawId = request.query.id;
+    const id = Array.isArray(rawId) ? rawId[0] : (rawId as string);
 
     if (!id) {
         return response.redirect('/');
