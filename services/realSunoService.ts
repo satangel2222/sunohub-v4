@@ -210,43 +210,53 @@ export const parseSunoLink = async (url: string): Promise<Song> => {
         if (handleMatch) finalArtist = handleMatch[2].trim();
     }
 
-    // D. App Router Hydration (New Suno Architecture)
+    // D. App Router Hydration (New Suno Architecture - Robust Parsing)
     try {
-        // 匹配 self.__next_f.push 及其中的 clip/song 数据
+        // 全局构建元数据字典 (模拟 Tampermonkey V2.6 的逻辑)
+        const metadataMap = new Map<string, any>();
+
+        // 匹配所有 hydration 块
         const hydrationMatches = rawHtml.matchAll(/self\.__next_f\.push\(\[1,"(.*?)"\]\)/gs);
+
         for (const match of hydrationMatches) {
-            const rawSegment = match[1].replace(/\\"/g, '"').replace(/\\n/g, '\\n'); // 简单的清洗
-            // 尝试查找 clip 对象特征 "title":"..."
-            if (rawSegment.includes('"title":') && rawSegment.includes('"metadata":')) {
+            let rawSegment = match[1];
+            // 基础反转义，恢复 JSON 结构
+            rawSegment = rawSegment.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
 
-                // 1. 尝试提取 handle (最准确)
+            // 粗略检查是否包含关键字段
+            if (!rawSegment.includes('"id":') || !rawSegment.includes('"metadata":')) continue;
+
+            // 嘗試提取 ID
+            const idMatch = rawSegment.match(/"id":"([a-f0-9-]{36})"/);
+            if (!idMatch) continue;
+            const id = idMatch[1];
+
+            // 如果字典里还没这个 ID 的完整数据，尝试解析
+            if (!metadataMap.has(id)) {
+                const titleMatch = rawSegment.match(/"title":"((?:[^"\\\\]|\\\\.)*)"/);
                 const handleMatch = rawSegment.match(/"handle":"([^"]+)"/);
-                if (handleMatch) finalArtist = handleMatch[1];
-                else {
-                    // 2. 只有当没有 handle 时才尝试 display_name，并且要避开 model_badges 里的 v4.5-all
-                    // 策略：找紧跟 user_id 附近的 display_name，或者直接找 "display_name":"..." 但排除 songrow
-                    const authorMatch = rawSegment.match(/"display_name":"([^"]+)"/g);
-                    if (authorMatch) {
-                        // 过滤掉版本号常见的 display_name
-                        const validName = authorMatch.map(m => m.match(/"display_name":"([^"]+)"/)![1])
-                            .find(n => !n.includes('v3') && !n.includes('v4') && !n.includes('chirp'));
-                        if (validName) finalArtist = validName;
-                    }
-                }
+                const nameMatch = rawSegment.match(/"display_name":"((?:[^"\\\\]|\\\\.)*)"/);
+                const promptMatch = rawSegment.match(/"prompt":"((?:[^"\\\\]|\\\\.)*)"/);
 
-                // 提取 prompt (歌词)
-                // 注意：prompt 通常在 metadata 对象里，格式为 "prompt":"[Verse]..."
-                const promptMatch = rawSegment.match(/"prompt":"((?:[^"\\]|\\.)*)"/);
-                if (promptMatch) {
-                    lyrics = normalizeLyrics(promptMatch[1].replace(/\\n/g, '\n')) || lyrics;
+                if (titleMatch) {
+                    metadataMap.set(id, {
+                        title: JSON.parse(`"${titleMatch[1]}"`),
+                        artist: handleMatch ? handleMatch[1] : (nameMatch ? JSON.parse(`"${nameMatch[1]}"`) : 'Suno AI'),
+                        prompt: promptMatch ? JSON.parse(`"${promptMatch[1]}"`) : ''
+                    });
                 }
-
-                // 提取 title
-                const titleMatch = rawSegment.match(/"title":"([^"]+)"/);
-                if (titleMatch) finalTitle = titleMatch[1];
             }
         }
-    } catch (e) { }
+
+        // 尝试从字典中获取当前 ID 的数据
+        if (metadataMap.has(sunoId)) {
+            const data = metadataMap.get(sunoId);
+            finalTitle = data.title || finalTitle;
+            finalArtist = data.artist || finalArtist;
+            lyrics = normalizeLyrics(data.prompt) || lyrics;
+        }
+
+    } catch (e) { console.warn("Hydration parse warning:", e); }
 
     // E. __NEXT_DATA__ (Legacy Pages Router)
     try {
