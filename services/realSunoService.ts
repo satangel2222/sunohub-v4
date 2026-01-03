@@ -210,53 +210,77 @@ export const parseSunoLink = async (url: string): Promise<Song> => {
         if (handleMatch) finalArtist = handleMatch[2].trim();
     }
 
-    // D. App Router Hydration (New Suno Architecture - Robust Parsing)
+    // D. App Router Hydration (Robust Heuristic for SPLIT Chunks)
     try {
-        // 全局构建元数据字典 (模拟 Tampermonkey V2.6 的逻辑)
-        const metadataMap = new Map<string, any>();
-
-        // 匹配所有 hydration 块
+        // 1. 提取所有 Hydration 文本片段
+        const chunks: string[] = [];
         const hydrationMatches = rawHtml.matchAll(/self\.__next_f\.push\(\[1,"(.*?)"\]\)/gs);
-
         for (const match of hydrationMatches) {
-            let rawSegment = match[1];
-            // 基础反转义，恢复 JSON 结构
-            rawSegment = rawSegment.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+            let raw = match[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+            chunks.push(raw);
+        }
 
-            // 粗略检查是否包含关键字段
-            if (!rawSegment.includes('"id":') || !rawSegment.includes('"metadata":')) continue;
+        // 2. 尝试从 Title/Metadata Chunk 提取核心信息
+        // (Suno 现在把 ID 和 Metadata 拆分了，所以我们分别查找)
+        for (const chunk of chunks) {
+            // 找标题/作者 (通常在一个 Metadata 对象里)
+            const titleMatch = chunk.match(/"title":"((?:[^"\\\\]|\\\\.)*)"/);
+            const handleMatch = chunk.match(/"handle":"([^"]+)"/);
 
-            // 嘗試提取 ID
-            const idMatch = rawSegment.match(/"id":"([a-f0-9-]{36})"/);
-            if (!idMatch) continue;
-            const id = idMatch[1];
-
-            // 如果字典里还没这个 ID 的完整数据，尝试解析
-            if (!metadataMap.has(id)) {
-                const titleMatch = rawSegment.match(/"title":"((?:[^"\\\\]|\\\\.)*)"/);
-                const handleMatch = rawSegment.match(/"handle":"([^"]+)"/);
-                const nameMatch = rawSegment.match(/"display_name":"((?:[^"\\\\]|\\\\.)*)"/);
-                const promptMatch = rawSegment.match(/"prompt":"((?:[^"\\\\]|\\\\.)*)"/);
-
-                if (titleMatch) {
-                    metadataMap.set(id, {
-                        title: JSON.parse(`"${titleMatch[1]}"`),
-                        artist: handleMatch ? handleMatch[1] : (nameMatch ? JSON.parse(`"${nameMatch[1]}"`) : 'Suno AI'),
-                        prompt: promptMatch ? JSON.parse(`"${promptMatch[1]}"`) : ''
-                    });
-                }
+            // 只有当这个 chunk 看起来像是 Metadata 时才采信
+            if (titleMatch && chunk.includes('"is_public":')) {
+                finalTitle = JSON.parse(`"${titleMatch[1]}"`);
+                if (handleMatch) finalArtist = handleMatch[1];
             }
         }
 
-        // 尝试从字典中获取当前 ID 的数据
-        if (metadataMap.has(sunoId)) {
-            const data = metadataMap.get(sunoId);
-            finalTitle = data.title || finalTitle;
-            finalArtist = data.artist || finalArtist;
-            lyrics = normalizeLyrics(data.prompt) || lyrics;
+        // 3. 启发式歌词查找 (Lyrics Heuristic)
+        // 歌词现在通常作为纯文本存在于某个独立的 chunk 中
+        // 特征：包含 [Verse], [Chorus] 或长度较大且有多行
+        let bestLyrics = '';
+        let maxScore = 0;
+
+        for (const chunk of chunks) {
+            // 忽略太短的
+            if (chunk.length < 50) continue;
+            // 忽略 JSON 结构密集的 (可能是配置信息)
+            if (chunk.includes('{"') && chunk.length < 500) continue;
+
+            let score = 0;
+            // 强特征
+            if (chunk.includes('[Verse')) score += 10;
+            if (chunk.includes('[Chorus')) score += 10;
+            if (chunk.includes('[Intro')) score += 10;
+            if (chunk.includes('[Outro')) score += 10;
+            if (chunk.includes('[Instrumental')) score += 10;
+
+            // 弱特征
+            const newlineCount = (chunk.match(/\\n/g) || []).length;
+            if (newlineCount > 4) score += 5;
+
+            // 如果 chunk 本身就是个被引号包围的 JSON 字符串值，去掉引号
+            let cleanText = chunk;
+            if (cleanText.startsWith('"') && cleanText.endsWith('"')) {
+                cleanText = cleanText.slice(1, -1);
+            }
+            cleanText = cleanText.replace(/\\n/g, '\n');
+
+            // 过滤掉代码或 JS
+            if (cleanText.includes('function') || cleanText.includes('return') || cleanText.includes('__next')) {
+                score -= 100;
+            }
+
+            if (score > maxScore) {
+                maxScore = score;
+                bestLyrics = cleanText;
+            }
         }
 
-    } catch (e) { console.warn("Hydration parse warning:", e); }
+        if (maxScore > 0 && bestLyrics) {
+            lyrics = bestLyrics.trim();
+        }
+
+    } catch (e) { console.warn("Hydration heuristic parse warning:", e); }
 
     // E. __NEXT_DATA__ (Legacy Pages Router)
     try {
