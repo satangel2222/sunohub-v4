@@ -326,7 +326,8 @@ export const submitReview = async (song_id: string, rating: number, comment?: st
 export const deleteReview = async (id: string) => { await supabase.from('reviews').delete().eq('id', id); };
 export const updateSongLyrics = async (id: string, lyrics: string) => { await supabase.from('songs').update({ lyrics }).eq('id', id); };
 export const bulkUpdateArtistName = async (target: string, replacement: string) => {
-    const { data } = await supabase.from('songs').update({ artist: replacement }).eq('artist', target).select('*');
+    const { data, error } = await supabase.from('songs').update({ artist: replacement }).eq('artist', target).select('*');
+    if (error) throw new Error(error.message);
     return data?.length || 0;
 };
 export const getRandomSongId = async (excludeId?: string) => {
