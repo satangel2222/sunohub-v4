@@ -466,12 +466,29 @@ const Player: React.FC = () => {
 
                             {/* Sync Hint Overlay */}
                             {isSyncing && (
-                                <div className="absolute inset-x-0 bottom-8 z-30 flex justify-center pointer-events-none">
-                                    <div className="bg-black/70 backdrop-blur-md text-white px-6 py-3 rounded-full font-bold animate-pulse shadow-2xl flex items-center gap-2">
-                                        <div className="w-16 h-8 border-2 border-white/30 rounded-lg flex items-center justify-center text-xs font-mono">SPACE</div>
-                                        敲击空格或点击任意处录制下一行
+                                <>
+                                    {/* Desktop Hint (Hidden on mobile usually, but kept for clarity) */}
+                                    <div className="absolute inset-x-0 bottom-8 z-30 flex justify-center pointer-events-none md:flex hidden">
+                                        <div className="bg-black/70 backdrop-blur-md text-white px-6 py-3 rounded-full font-bold animate-pulse shadow-2xl flex items-center gap-2">
+                                            <div className="w-16 h-8 border-2 border-white/30 rounded-lg flex items-center justify-center text-xs font-mono">SPACE</div>
+                                            敲击空格或点击下方按钮录制
+                                        </div>
                                     </div>
-                                </div>
+
+                                    {/* Mobile/Desktop Large Tap Area */}
+                                    <div
+                                        className="fixed bottom-0 left-0 right-0 h-[35vh] z-50 bg-gradient-to-t from-gray-900 via-gray-900/90 to-transparent flex flex-col items-center justify-end pb-12 cursor-pointer touch-manipulation hover:bg-gray-900/50 transition-colors"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleSyncTrigger();
+                                        }}
+                                    >
+                                        <div className="bg-indigo-600/90 backdrop-blur-xl text-white px-12 py-6 rounded-3xl font-bold text-2xl shadow-[0_0_40px_rgba(79,70,229,0.5)] animate-pulse active:scale-95 active:bg-indigo-500 transition-all border-4 border-indigo-400/30 flex flex-col items-center gap-2 select-none">
+                                            <span>👆 点击打点 / TAP</span>
+                                            <span className="text-xs font-normal opacity-80">听到歌词第一声时点击</span>
+                                        </div>
+                                    </div>
+                                </>
                             )}
 
                             {/* 歌词装饰遮罩 */}
