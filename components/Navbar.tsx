@@ -101,7 +101,7 @@ const Navbar: React.FC<NavbarProps> = ({ onlineCount = 1 }) => {
               <div className="w-8 h-8 bg-white text-[#667eea] dark:text-gray-900 rounded-full flex items-center justify-center group-hover:rotate-12 transition-transform">
                 <Music size={18} fill="currentColor" />
               </div>
-              SunoHub
+              Tunora
             </Link>
 
             <div className="hidden md:flex items-center gap-2 bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full border border-white/10">

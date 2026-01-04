@@ -225,7 +225,7 @@ const Player: React.FC = () => {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: song.title,
                 artist: song.artist,
-                album: 'SunoHub AI Music',
+                album: 'Tunora AI Music',
                 artwork: [
                     { src: song.image_url, sizes: '512x512', type: 'image/png' },
                 ]
@@ -309,7 +309,7 @@ const Player: React.FC = () => {
         return `🎵 发现一首神曲！\n${song.title} - ${song.artist}\n\n👉 立即试听: ${shareUrl}`;
     }, [song, shareUrl]);
 
-    const displayTitle = song ? `${song.title} - ${song.artist} | SunoHub` : 'SunoHub Player';
+    const displayTitle = song ? `${song.title} - ${song.artist} | Tunora` : 'Tunora Player';
     const displayImage = song?.image_url || 'https://images.unsplash.com/photo-1614149162883-504ce4d13909?q=80&w=1200&auto=format&fit=crop';
 
     useEffect(() => {
@@ -511,7 +511,7 @@ const Player: React.FC = () => {
                                 <button onClick={() => {
                                     if (navigator.share) {
                                         navigator.share({
-                                            title: `Listen to ${song?.title || 'Song'} on SunoHub`,
+                                            title: `Listen to ${song?.title || 'Song'} on Tunora`,
                                             text: shareText,
                                             url: shareUrl
                                         }).catch(() => setShowWeChatQR(!showWeChatQR));

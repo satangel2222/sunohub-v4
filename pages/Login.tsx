@@ -8,7 +8,7 @@ const Login: React.FC = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+
   // New Profile States
   const [nickname, setNickname] = useState('');
   const [age, setAge] = useState<number>(18);
@@ -27,7 +27,7 @@ const Login: React.FC = () => {
     try {
       if (isSignUp) {
         if (!nickname.trim()) {
-            throw new Error("请输入昵称");
+          throw new Error("请输入昵称");
         }
 
         // --- 注册逻辑 ---
@@ -35,24 +35,24 @@ const Login: React.FC = () => {
           email,
           password,
           options: {
-              data: {
-                  nickname: nickname,
-                  age: age,
-                  gender: gender,
-                  // 根据性别生成初始头像
-                  avatar_url: `https://api.dicebear.com/9.x/avataaars/svg?seed=${nickname}-${gender}&backgroundColor=${gender === 'female' ? 'ffdfbf' : 'b6e3f4'}`
-              }
+            data: {
+              nickname: nickname,
+              age: age,
+              gender: gender,
+              // 根据性别生成初始头像
+              avatar_url: `https://api.dicebear.com/9.x/avataaars/svg?seed=${nickname}-${gender}&backgroundColor=${gender === 'female' ? 'ffdfbf' : 'b6e3f4'}`
+            }
           }
         });
 
         if (error) {
-            // 处理“用户已存在”的特定错误
-            if (error.message.includes('already registered') || error.message.includes('User already exists')) {
-                throw new Error('该邮箱已被注册，请直接登录');
-            }
-            throw error;
+          // 处理“用户已存在”的特定错误
+          if (error.message.includes('already registered') || error.message.includes('User already exists')) {
+            throw new Error('该邮箱已被注册，请直接登录');
+          }
+          throw error;
         }
-        
+
         // 关键逻辑：判断是否需要邮箱验证
         if (data.user && !data.session) {
           // 情况 A: Supabase 开启了 "Confirm email"
@@ -61,7 +61,7 @@ const Login: React.FC = () => {
           // 情况 B: Supabase 关闭了 "Confirm email" (推荐) -> 直接登录成功
           setMessage("注册成功！正在跳转...");
           setTimeout(() => {
-              navigate('/');
+            navigate('/');
           }, 800);
         }
       } else {
@@ -71,22 +71,22 @@ const Login: React.FC = () => {
           password,
         });
         if (error) {
-            if (error.message.includes('Invalid login credentials')) {
-                throw new Error('邮箱或密码错误，或者您的账号尚未验证邮箱。');
-            }
-            throw error;
+          if (error.message.includes('Invalid login credentials')) {
+            throw new Error('邮箱或密码错误，或者您的账号尚未验证邮箱。');
+          }
+          throw error;
         }
         navigate('/'); // 登录成功跳转首页
       }
     } catch (err: any) {
       setError(err.message || '操作失败，请检查账号密码');
-      
+
       // 如果提示用户已存在，自动切换到登录模式方便用户
       if (err.message === '该邮箱已被注册，请直接登录') {
-          setTimeout(() => {
-              setIsSignUp(false);
-              setError(null); // 清除错误，让用户直接登录
-          }, 1500);
+        setTimeout(() => {
+          setIsSignUp(false);
+          setError(null); // 清除错误，让用户直接登录
+        }, 1500);
       }
     } finally {
       setLoading(false);
@@ -104,7 +104,7 @@ const Login: React.FC = () => {
             {isSignUp ? '创建账号' : '欢迎回来'}
           </h1>
           <p className="text-gray-500 dark:text-gray-400">
-            {isSignUp ? '定制您的 SunoHub 专属形象' : '登录以管理您的作品'}
+            {isSignUp ? '定制您的 Tunora 专属形象' : '登录以管理您的作品'}
           </p>
         </div>
 
@@ -115,7 +115,7 @@ const Login: React.FC = () => {
               <span>{error}</span>
             </div>
           )}
-          
+
           {message && (
             <div className="bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 p-4 rounded-xl text-sm flex items-start gap-2">
               <CheckCircle2 size={18} className="mt-0.5 shrink-0" />
@@ -126,65 +126,65 @@ const Login: React.FC = () => {
           {/* 注册专属扩展字段 */}
           {isSignUp && (
             <div className="space-y-6 animate-fade-in-up">
-                {/* 1. 性别 (卡片选择) - Lazy UI */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 text-center">选择性别</label>
-                    <div className="grid grid-cols-2 gap-4">
-                        <button
-                          type="button"
-                          onClick={() => setGender('male')}
-                          className={`p-4 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center gap-2 ${gender === 'male' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md transform scale-105' : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-750 text-gray-400 dark:text-gray-500 hover:border-gray-200 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
-                        >
-                            <span className="text-4xl">👦</span>
-                            <span className="font-bold">男生</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setGender('female')}
-                          className={`p-4 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center gap-2 ${gender === 'female' ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 shadow-md transform scale-105' : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-750 text-gray-400 dark:text-gray-500 hover:border-gray-200 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
-                        >
-                            <span className="text-4xl">👧</span>
-                            <span className="font-bold">女生</span>
-                        </button>
+              {/* 1. 性别 (卡片选择) - Lazy UI */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 text-center">选择性别</label>
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setGender('male')}
+                    className={`p-4 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center gap-2 ${gender === 'male' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md transform scale-105' : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-750 text-gray-400 dark:text-gray-500 hover:border-gray-200 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                  >
+                    <span className="text-4xl">👦</span>
+                    <span className="font-bold">男生</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGender('female')}
+                    className={`p-4 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center gap-2 ${gender === 'female' ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 shadow-md transform scale-105' : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-750 text-gray-400 dark:text-gray-500 hover:border-gray-200 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                  >
+                    <span className="text-4xl">👧</span>
+                    <span className="font-bold">女生</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                {/* 2. 年龄 (下拉选择) */}
+                <div className="col-span-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">年龄</label>
+                  <div className="relative">
+                    <select
+                      value={age}
+                      onChange={(e) => setAge(Number(e.target.value))}
+                      className="w-full pl-3 pr-8 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:bg-white dark:focus:bg-gray-600 dark:text-white focus:border-indigo-500 outline-none transition appearance-none cursor-pointer font-bold text-center"
+                    >
+                      {Array.from({ length: 80 }, (_, i) => i + 12).map((num) => (
+                        <option key={num} value={num}>{num}</option>
+                      ))}
+                    </select>
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                      <span className="text-xs">▼</span>
                     </div>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                    {/* 2. 年龄 (下拉选择) */}
-                    <div className="col-span-1">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">年龄</label>
-                        <div className="relative">
-                            <select
-                                value={age}
-                                onChange={(e) => setAge(Number(e.target.value))}
-                                className="w-full pl-3 pr-8 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:bg-white dark:focus:bg-gray-600 dark:text-white focus:border-indigo-500 outline-none transition appearance-none cursor-pointer font-bold text-center"
-                            >
-                                {Array.from({ length: 80 }, (_, i) => i + 12).map((num) => (
-                                    <option key={num} value={num}>{num}</option>
-                                ))}
-                            </select>
-                            <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                                <span className="text-xs">▼</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 3. 昵称 */}
-                    <div className="col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">昵称</label>
-                        <div className="relative">
-                            <input
-                                type="text"
-                                required={isSignUp}
-                                value={nickname}
-                                onChange={(e) => setNickname(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:bg-white dark:focus:bg-gray-600 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 outline-none transition"
-                                placeholder="给自己起个好听的名字"
-                            />
-                            <Smile className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={18} />
-                        </div>
-                    </div>
+                {/* 3. 昵称 */}
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">昵称</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      required={isSignUp}
+                      value={nickname}
+                      onChange={(e) => setNickname(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:bg-white dark:focus:bg-gray-600 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 outline-none transition"
+                      placeholder="给自己起个好听的名字"
+                    />
+                    <Smile className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={18} />
+                  </div>
                 </div>
+              </div>
             </div>
           )}
 
@@ -245,13 +245,13 @@ const Login: React.FC = () => {
             </button>
           </p>
         </div>
-        
+
         {isSignUp && (
-            <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700 text-center">
-                <p className="text-xs text-gray-400 dark:text-gray-500">
-                    提示：注册后您的头像将根据性别和昵称自动生成。
-                </p>
-            </div>
+          <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700 text-center">
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              提示：注册后您的头像将根据性别和昵称自动生成。
+            </p>
+          </div>
         )}
       </div>
     </div>

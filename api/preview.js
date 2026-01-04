@@ -37,7 +37,7 @@ export default async function handler(request, response) {
 
         // Song Found -> Generate Meta Tags
         const title = `${song.title} - ${song.artist}`;
-        const description = `Listen to this AI-generated masterpiece on SunoHub.`;
+        const description = `Listen to this AI-generated masterpiece on Tunora.`;
         const imageUrl = song.image_url;
         const audioUrl = song.audio_url;
         const appUrl = `https://sunohub-v4.vercel.app/song/${id}`;
@@ -78,7 +78,7 @@ export default async function handler(request, response) {
         <meta http-equiv="refresh" content="0;url=${finalRedirectUrl}" />
       </head>
       <body>
-        <p>Redirecting to <a href="${finalRedirectUrl}">SunoHub Player</a>...</p>
+        <p>Redirecting to <a href="${finalRedirectUrl}">Tunora Player</a>...</p>
         <script>window.location.href = "${finalRedirectUrl}";</script>
       </body>
       </html>

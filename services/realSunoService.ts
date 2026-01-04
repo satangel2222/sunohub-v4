@@ -99,7 +99,7 @@ export const deleteSongs = async (ids: string[]) => {
     if (error) throw new Error(error.message || "批量删除失败");
 };
 
-const fetchWithTimeout = async (url: string, timeout = 10000): Promise<Response> => {
+const fetchWithTimeout = async (url: string, timeout = 15000): Promise<Response> => {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
     try {
@@ -128,21 +128,37 @@ const fetchHtml = async (url: string): Promise<string> => {
 };
 
 const backupToCloud = async (url: string, fileName: string, bucket: string = 'suno-media'): Promise<string> => {
-    try {
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-        const response = await fetchWithTimeout(proxyUrl, 8000);
-        if (!response.ok) throw new Error("下载失败");
-        const blob = await response.blob();
-        const { data, error } = await supabase.storage.from(bucket).upload(fileName, blob, {
-            contentType: blob.type,
-            upsert: true
-        });
-        if (error) throw error;
-        const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(fileName);
-        return publicUrl;
-    } catch (e) {
-        return url;
+    // 重试机制
+    for (let i = 0; i < 3; i++) {
+        try {
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+            // 增加超时时间到 30s
+            const response = await fetchWithTimeout(proxyUrl, 30000);
+
+            if (!response.ok) throw new Error(`Proxy error: ${response.status}`);
+
+            const blob = await response.blob();
+
+            // 校验：如果并不是真正的媒体文件（比如是 404 HTML 或极小的错误响应）
+            if (blob.size < 1000) throw new Error("File too small, possibly invalid");
+
+            const { data, error } = await supabase.storage.from(bucket).upload(fileName, blob, {
+                contentType: blob.type,
+                upsert: true
+            });
+
+            if (error) throw error;
+
+            const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(fileName);
+            return publicUrl;
+        } catch (e) {
+            console.warn(`Upload attempt ${i + 1} failed for ${fileName}:`, e);
+            if (i === 2) return url; // 最后一次失败则回退到原始链接
+            // 等待一秒再重试
+            await new Promise(r => setTimeout(r, 1000));
+        }
     }
+    return url;
 };
 
 export const parseSunoLink = async (url: string): Promise<Song> => {
@@ -265,8 +281,21 @@ export const parseSunoLink = async (url: string): Promise<Song> => {
             }
             cleanText = cleanText.replace(/\\n/g, '\n');
 
-            // 过滤掉代码或 JS
-            if (cleanText.includes('function') || cleanText.includes('return') || cleanText.includes('__next')) {
+            // 过滤掉代码或 JS 或 React Hydration
+            const badKeywords = [
+                'function', 'return', '__next', '$Sreact',
+                'react.fragment', 'react.element',
+                'self.__next', 'webpack', 'module.exports'
+            ];
+
+            if (badKeywords.some(kw => cleanText.toLowerCase().includes(kw))) {
+                score -= 100;
+            }
+
+            // 针对用户反馈的 `1:"$Sreact.fragment"` 以及 `b:T` 这种格式进行强力过滤
+            // Next.js RSC payload 格式通常为 `ID:Type` 或 `ID:JSON`
+            // 我们过滤掉所有 `字母/数字 + 冒号 + 字母/引号/[` 开头的行
+            if (/^[a-zA-Z0-9]+:[a-zA-Z"\[]/.test(cleanText)) {
                 score -= 100;
             }
 
@@ -277,6 +306,7 @@ export const parseSunoLink = async (url: string): Promise<Song> => {
         }
 
         if (maxScore > 0 && bestLyrics) {
+            // 最后再做一次清洗，防止头部残留
             lyrics = bestLyrics.trim();
         }
 
