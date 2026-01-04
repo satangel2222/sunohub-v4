@@ -1,5 +1,5 @@
 
-# Tunora - AI 音乐创作分享社区
+# Tunenora - AI 音乐创作分享社区
 
 > **Independent tool for AI music creators. Not affiliated with Suno.ai**
 
@@ -8,7 +8,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38b2ac?logo=tailwind-css)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-Database-green?logo=supabase)](https://supabase.com/)
 
-Tunora 是一个专为 AI 音乐创作者打造的增强工具平台。它不仅解决了 Suno 官方链接分享形式单一的问题，还提供了歌词同步显示、社交互动、排行榜以及永久云端备份功能。
+Tunenora 是一个专为 AI 音乐创作者打造的增强工具平台。它不仅解决了 Suno 官方链接分享形式单一的问题，还提供了歌词同步显示、社交互动、排行榜以及永久云端备份功能。
 
 ---
 
@@ -40,7 +40,7 @@ Tunora 是一个专为 AI 音乐创作者打造的增强工具平台。它不仅
 ### 第二步：在 Vercel 导入项目
 1. 注册并登录 [Vercel.com](https://vercel.com)。
 2. 在 Dashboard 点击黑色的 **"Add New..."** 按钮，选择 **"Project"**。
-3. 在左侧 "Import Git Repository" 列表中，找到您的 `Tunora` 仓库，点击 **"Import"**。
+3. 在左侧 "Import Git Repository" 列表中，找到您的 `Tunenora` 仓库，点击 **"Import"**。
 
 ### 第三步：配置环境变量 (⭐⭐⭐ 最关键一步)
 在导入页面的 **"Environment Variables"** (环境变量) 区域，您必须填入 Supabase 的连接信息，否则网站部署后无法加载数据。
@@ -56,7 +56,7 @@ Tunora 是一个专为 AI 音乐创作者打造的增强工具平台。它不仅
 1. 检查 Framework Preset 是否自动识别为 **Vite** (通常会自动识别)。
 2. 点击蓝色的 **"Deploy"** 按钮。
 3. 等待约 1 分钟，Vercel 会自动构建、打包并发布。
-4. 完成后，您会看到满屏的撒花特效。点击 **"Visit"** 即可获得您的专属永久域名（例如 `https://tunora-yourname.vercel.app`）。
+4. 完成后，您会看到满屏的撒花特效。点击 **"Visit"** 即可获得您的专属永久域名（例如 `https://tunenora-yourname.vercel.app`）。
 
 🎉 **现在，把这个链接分享给朋友，他们就能完美打开了！**
 
@@ -93,7 +93,7 @@ A: 请检查项目根目录是否有 `vercel.json` 文件，并包含 rewrite �
 - **智能分享链接**: 自动清洗开发环境产生的 `blob:` 前缀，生成标准、干净的公共分享链接。
 - **云端智能解析**: 直接在该站后端进行深度解析，**不再依赖脆弱的浏览器脚本抓取 DOM**。即使 Suno 改版，只需升级后端即可修复，无需用户更新脚本。
 - **批量导入**: 支持文本批量粘贴链接，自动去重处理。
-- **官网一键导出 (V3.1)**: 提供 Tampermonkey 脚本 (V3.1 极速版)，只负责提取链接，将复杂的元数据解析交给强大的 Tunora 后端。抓取率 100% 且极快。
+- **官网一键导出 (V3.1)**: 提供 Tampermonkey 脚本 (V3.1 极速版)，只负责提取链接，将复杂的元数据解析交给强大的 Tunenora 后端。抓取率 100% 且极快。
 
 ### ☁️ 资源持久化
 - **自动备份**: 发布时自动将 Suno 的临时 CDN 链接转存至您配置的 Supabase Storage，防止链接失效。
@@ -151,7 +151,7 @@ npm run dev
 
 ```sql
 -- ============================================================
--- Tunora Database Schema - 完整版 (2025-04-12)
+-- Tunenora Database Schema - 完整版 (2025-04-12)
 -- 包含：歌曲库、评分系统、用户档案、管理员权限、自动同步触发器
 -- ============================================================
 

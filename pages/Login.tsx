@@ -104,7 +104,7 @@ const Login: React.FC = () => {
             {isSignUp ? '创建账号' : '欢迎回来'}
           </h1>
           <p className="text-gray-500 dark:text-gray-400">
-            {isSignUp ? '定制您的 Tunora 专属形象' : '登录以管理您的作品'}
+            {isSignUp ? '定制您的 Tunenora 专属形象' : '登录以管理您的作品'}
           </p>
         </div>
 

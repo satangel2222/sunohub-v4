@@ -17,11 +17,11 @@ interface BatchItem {
 }
 
 const TAMPERMONKEY_SCRIPT = `// ==UserScript==
-// @name         Tunora 导出助手 (极速版 V3.1)
+// @name         Tunenora 导出助手 (极速版 V3.1)
 // @namespace    http://tampermonkey.net/
 // @version      3.1
-// @description  利用 Tunora 强大的云端解析引擎。本脚本只负责提取链接，准确率 100%。
-// @author       Tunora
+// @description  利用 Tunenora 强大的云端解析引擎。本脚本只负责提取链接，准确率 100%。
+// @author       Tunenora
 // @match        https://suno.com/*
 // @grant        GM_setClipboard
 // ==/UserScript==
@@ -63,7 +63,7 @@ const TAMPERMONKEY_SCRIPT = `// ==UserScript==
             // 直接复制纯文本链接，一行一个
             const text = urls.join('\\n');
             await navigator.clipboard.writeText(text);
-            alert(\`✅ 成功提取 \${urls.length} 个链接！\\n\\n已自动复制。请去 Tunora 点击 "批量文本" 粘贴即可。\\n(Tunora 会自动解析标题和封面，比脚本抓的更准)\`);
+            alert(\`✅ 成功提取 \${urls.length} 个链接！\\n\\n已自动复制。请去 Tunenora 点击 "批量文本" 粘贴即可。\\n(Tunenora 会自动解析标题和封面，比脚本抓的更准)\`);
         }
         
         btn.innerHTML = '⚡ 批量复制链接 (V3.1)';
