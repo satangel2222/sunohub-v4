@@ -342,8 +342,19 @@ const Feed: React.FC = () => {
 
             {/* Custom Delete Modal */}
             {deleteTarget && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full p-6 border border-gray-100 dark:border-gray-700 transform transition-all scale-100">
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+                    onClick={(e) => {
+                        // 点击背景关闭模态框
+                        if (e.target === e.currentTarget) {
+                            setDeleteTarget(null);
+                        }
+                    }}
+                >
+                    <div
+                        className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full p-6 border border-gray-100 dark:border-gray-700 transform transition-all scale-100"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <div className="flex flex-col items-center text-center gap-4">
                             <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 dark:text-red-400">
                                 <Trash2 size={24} />
@@ -352,9 +363,9 @@ const Feed: React.FC = () => {
                                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">确认删除?</h3>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
                                     {deleteTarget.type === 'single'
-                                        ? `您确定要彻底删除《${deleteTarget.title}》吗？`
-                                        : `您确定要彻底删除选中的 ${selectedIds.size} 首作品吗？`}
-                                    <br />此操作无法恢复。
+                                        ? `您确定要删除《${deleteTarget.title}》吗？`
+                                        : `您确定要删除选中的 ${selectedIds.size} 首作品吗？`}
+                                    <br />删除后可在历史记录中恢复。
                                 </p>
                             </div>
                             <div className="flex gap-3 w-full mt-2">
@@ -368,7 +379,7 @@ const Feed: React.FC = () => {
                                 <button
                                     onClick={confirmDelete}
                                     disabled={isLoading}
-                                    className="flex-1 py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-500/30 transition flex items-center justify-center gap-2"
+                                    className="flex-1 py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-500/30 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                     data-testid="delete-modal-confirm"
                                 >
                                     {isLoading ? <Loader2 size={16} className="animate-spin" /> : '确认删除'}
