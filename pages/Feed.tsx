@@ -297,10 +297,11 @@ const Feed: React.FC = () => {
                                         <div
                                             key={song.id}
                                             onClick={() => isManageMode && canDelete && toggleSelection(song.id!)}
-                                            className={`group bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm transition border flex flex-col relative ${isManageMode ? (canDelete ? 'cursor-pointer' : 'opacity-40 grayscale cursor-not-allowed') : 'cursor-default'} ${isSelected ? 'border-indigo-500 ring-4 ring-indigo-500/10' : 'border-gray-100 dark:border-gray-700 hover:shadow-lg'}`}
+                                            className={`group bg-white dark:bg-gray-800 rounded-xl shadow-sm transition border ${isMobile ? 'flex items-center gap-3 p-3' : 'flex flex-col p-3'
+                                                } relative ${isManageMode ? (canDelete ? 'cursor-pointer' : 'opacity-40 grayscale cursor-not-allowed') : 'cursor-default'} ${isSelected ? 'border-indigo-500 ring-4 ring-indigo-500/10' : 'border-gray-100 dark:border-gray-700 hover:shadow-lg'}`}
                                         >
-                                            <div className="block relative mb-2">
-                                                <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 relative">
+                                            <div className={isMobile ? "shrink-0" : "block relative mb-2"}>
+                                                <div className={isMobile ? "w-[60px] h-[60px] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 relative" : "aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 relative"}>
                                                     <img src={song.image_url} alt="" className={`w-full h-full object-cover transition duration-500 ${isManageMode && isSelected ? 'scale-90' : 'group-hover:scale-105'}`} />
 
                                                     {!isManageMode && (
@@ -316,47 +317,51 @@ const Feed: React.FC = () => {
                                                     )}
                                                 </div>
                                             </div>
-                                            <div className="font-bold text-gray-900 dark:text-white text-sm line-clamp-2 mb-0.5">{song.title}</div>
-                                            <div className="flex flex-col mb-2">
-                                                <button onClick={(e) => { if (!isManageMode) handleArtistClick(e, song.artist); }} className={`text-[11px] text-gray-500 text-left truncate ${!isManageMode && 'hover:text-indigo-500'}`}>{song.artist}</button>
-                                                <div className="flex items-center gap-1 text-[10px] text-gray-400 mt-0.5">
-                                                    <History size={10} />
-                                                    <span>{timeAgo(song.created_at)}</span>
+                                            <div className={isMobile ? "flex-1 min-w-0" : ""}>
+                                                <div className="font-bold text-gray-900 dark:text-white text-sm line-clamp-2 mb-0.5">{song.title}</div>
+                                                <div className="flex flex-col mb-2">
+                                                    <button onClick={(e) => { if (!isManageMode) handleArtistClick(e, song.artist); }} className={`text-[11px] text-gray-500 text-left truncate ${!isManageMode && 'hover:text-indigo-500'}`}>{song.artist}</button>
+                                                    <div className="flex items-center gap-1 text-[10px] text-gray-400 mt-0.5">
+                                                        <History size={10} />
+                                                        <span>{timeAgo(song.created_at)}</span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="flex items-center justify-between pt-2 border-t border-gray-50 dark:border-gray-700 mt-auto">
-                                                <div className="flex gap-2 text-[10px] text-gray-400"><span className="flex items-center gap-0.5"><Headphones size={10} /> {song.plays_count || 0}</span></div>
-                                                {!isManageMode && (
-                                                    <div className="flex gap-1">
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.preventDefault();
-                                                                e.stopPropagation();
-                                                                addToQueue(song);
-                                                                setBottomPlayerSong(song);
-                                                                setAddedId(song.id!);
-                                                                setTimeout(() => setAddedId(null), 1500);
-                                                            }}
-                                                            className={`p-1.5 rounded-lg transition ${addedId === song.id ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400 hover:text-indigo-600 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
-                                                            data-testid={`add-to-queue-${song.id}`}
-                                                            aria-label={`添加 ${song.title} 到播放列表`}
-                                                        >
-                                                            {addedId === song.id ? <CheckCircle size={14} /> : <ListPlus size={14} />}
-                                                        </button>
-                                                        {canDelete && (
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.preventDefault();
-                                                                    e.stopPropagation();
-                                                                    handleDeleteClick(song);
-                                                                }}
-                                                                className="p-1.5 rounded-lg transition text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                                                data-testid={`delete-${song.id}`}
-                                                                aria-label={`删除 ${song.title}`}
-                                                                title="删除"
-                                                            >
-                                                                <Trash2 size={14} />
-                                                            </button>
+                                                {!isMobile && (
+                                                    <div className="flex items-center justify-between pt-2 border-t border-gray-50 dark:border-gray-700 mt-auto">
+                                                        <div className="flex gap-2 text-[10px] text-gray-400"><span className="flex items-center gap-0.5"><Headphones size={10} /> {song.plays_count || 0}</span></div>
+                                                        {!isManageMode && (
+                                                            <div className="flex gap-1">
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.preventDefault();
+                                                                        e.stopPropagation();
+                                                                        addToQueue(song);
+                                                                        setBottomPlayerSong(song);
+                                                                        setAddedId(song.id!);
+                                                                        setTimeout(() => setAddedId(null), 1500);
+                                                                    }}
+                                                                    className={`p-1.5 rounded-lg transition ${addedId === song.id ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400 hover:text-indigo-600 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                                                                    data-testid={`add-to-queue-${song.id}`}
+                                                                    aria-label={`添加 ${song.title} 到播放列表`}
+                                                                >
+                                                                    {addedId === song.id ? <CheckCircle size={14} /> : <ListPlus size={14} />}
+                                                                </button>
+                                                                {canDelete && (
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.preventDefault();
+                                                                            e.stopPropagation();
+                                                                            handleDeleteClick(song);
+                                                                        }}
+                                                                        className="p-1.5 rounded-lg transition text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                                        data-testid={`delete-${song.id}`}
+                                                                        aria-label={`删除 ${song.title}`}
+                                                                        title="删除"
+                                                                    >
+                                                                        <Trash2 size={14} />
+                                                                    </button>
+                                                                )}
+                                                            </div>
                                                         )}
                                                     </div>
                                                 )}
@@ -405,11 +410,11 @@ const Feed: React.FC = () => {
                     </div>
                 )}
             </div>
-                    {/* 底部播放器 - 仅移动端 */}
-            <BottomPlayer 
+            {/* 底部播放器 - 仅移动端 */}
+            <BottomPlayer
                 song={bottomPlayerSong}
                 isPlaying={false}
-                onTogglePlay={() => {}}
+                onTogglePlay={() => { }}
                 progress={0}
             />
         </>
