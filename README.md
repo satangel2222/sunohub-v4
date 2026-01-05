@@ -104,6 +104,14 @@ A: 请检查项目根目录是否有 `vercel.json` 文件，并包含 rewrite �
 - **评分与评论**: 完整的五星评分系统和评论区。
 - **用户档案**: 支持自定义昵称、年龄、性别，并根据特征自动生成个性化头像。
 
+### 🗑️ 智能删除管理 (2026-01-05 新增)
+- **软删除机制**: 删除的歌曲不会真正从数据库中移除,而是标记为已删除,支持恢复操作。
+- **删除历史追踪**: 完整记录删除时间、删除者信息,方便审计和管理。
+- **恢复功能**: 误删的歌曲可以一键恢复,避免数据丢失。
+- **永久删除**: 管理员可以永久删除已软删除的记录,彻底清理数据库。
+- **无头浏览器兼容**: 删除按钮始终可见,不依赖 hover 状态,完美支持自动化测试。
+- **权限控制**: 普通用户只能删除和查看自己的删除记录,管理员可以查看所有记录。
+
 ---
 
 ## 🚀 快速开始 (本地开发)
@@ -176,6 +184,8 @@ alter table public.songs add column if not exists user_id uuid references auth.u
 alter table public.songs add column if not exists average_rating float default 0; -- 评分
 alter table public.songs add column if not exists total_reviews int default 0;  -- 评价数
 alter table public.songs add column if not exists lyrics text;                  -- 歌词
+alter table public.songs add column if not exists deleted_at timestamptz;       -- 软删除时间戳
+alter table public.songs add column if not exists deleted_by uuid references auth.users(id); -- 删除者ID
 
 -- 2. 创建评价表 (Reviews)
 create table if not exists public.reviews (
@@ -228,10 +238,15 @@ drop policy if exists "Users can update their own profile." on public.profiles;
 
 -- === A. 歌曲表策略 (Songs) ===
 
--- 1. 查看: 允许所有人
+-- 1. 查看: 允许所有人 (但只显示未删除的歌曲)
 create policy "Allow Public Read" 
 on public.songs for select 
-using (true);
+using (deleted_at is null);
+
+-- 1b. 管理员查看: 允许管理员查看所有歌曲(包括已删除)
+create policy "Admins can view all songs including deleted"
+on public.songs for select
+using ((auth.jwt() ->> 'email') = '774frank1@gmail.com'); -- 👈 请替换为您自己的管理员邮箱！
 
 -- 2. 发布: 只允许登录用户
 create policy "Allow Authenticated Insert" 
@@ -319,6 +334,28 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- ============================================================
+-- 删除历史视图 (2026-01-05 新增)
+-- ============================================================
+
+-- 创建删除历史视图
+create or replace view deleted_songs_view as
+select 
+    s.*,
+    u.email as deleted_by_email
+from songs s
+left join auth.users u on s.deleted_by = u.id
+where s.deleted_at is not null
+order by s.deleted_at desc;
+
+-- 授权访问视图
+grant select on deleted_songs_view to authenticated;
+
+-- 添加注释
+comment on column songs.deleted_at is '软删除时间戳,NULL表示未删除';
+comment on column songs.deleted_by is '执行删除操作的用户ID';
+comment on view deleted_songs_view is '删除历史视图,包含删除者邮箱信息';
 
 -- ✅ SQL 执行完毕
 ```

@@ -1,6 +1,6 @@
 
 import { supabase } from '../lib/supabaseClient';
-import { Song, Review } from '../types';
+import { Song, Review, DeletedSong } from '../types';
 
 const ADMIN_EMAIL = '774frank1@gmail.com';
 
@@ -55,6 +55,9 @@ export type SortFilter = 'latest' | 'trending' | 'top_rated' | 'mine';
 export const getSongFeed = async (filter: SortFilter = 'latest', artistQuery?: string, userId?: string): Promise<Song[]> => {
     let query = supabase.from('songs').select('*');
 
+    // 🔥 过滤已删除的歌曲
+    query = query.is('deleted_at', null);
+
     if (filter === 'mine' && userId) {
         query = query.eq('user_id', userId);
     } else if (artistQuery) {
@@ -69,7 +72,7 @@ export const getSongFeed = async (filter: SortFilter = 'latest', artistQuery?: s
         query = query.order('average_rating', { ascending: false });
     }
 
-    const { data, error } = await query.limit(100); // 增加上限以便管理
+    const { data, error } = await query.limit(100);
     if (error) throw new Error(error.message || "获取列表失败");
     return data || [];
 };
@@ -87,19 +90,98 @@ export const incrementPlays = async (id: string) => {
     }
 };
 
+// 软删除单个歌曲
 export const deleteSong = async (id: string) => {
-    const { error, count } = await supabase.from('songs').delete({ count: 'exact' }).eq('id', id);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("请先登录");
+
+    const { error, count } = await supabase
+        .from('songs')
+        .update({
+            deleted_at: new Date().toISOString(),
+            deleted_by: user.id
+        })
+        .eq('id', id)
+        .is('deleted_at', null)
+        .select('id', { count: 'exact' });
+
     if (error) throw new Error(error.message || "删除失败");
-    if (count === 0) throw new Error("删除失败：权限不足或歌曲不存在 (请检查数据库 RLS 策略)");
+    if (count === 0) throw new Error("删除失败：权限不足或歌曲不存在");
 };
 
-// 批量删除接口
+// 批量软删除
 export const deleteSongs = async (ids: string[]) => {
     if (!ids || ids.length === 0) return;
-    const { error, count } = await supabase.from('songs').delete({ count: 'exact' }).in('id', ids);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("请先登录");
+
+    const { error, count } = await supabase
+        .from('songs')
+        .update({
+            deleted_at: new Date().toISOString(),
+            deleted_by: user.id
+        })
+        .in('id', ids)
+        .is('deleted_at', null)
+        .select('id', { count: 'exact' });
+
     if (error) throw new Error(error.message || "批量删除失败");
-    // 批量删除时，如果部分失败，count 可能小于 ids.length，这里主要防 0
-    if (count === 0) throw new Error("操作无效：没有歌曲被删除 (权限不足)");
+    if (count === 0) throw new Error("操作无效：没有歌曲被删除");
+};
+
+// 获取删除历史
+export const getDeletedSongs = async (): Promise<DeletedSong[]> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("请先登录");
+
+    const isAdmin = user.email === ADMIN_EMAIL;
+
+    let query = supabase
+        .from('deleted_songs_view')
+        .select('*')
+        .order('deleted_at', { ascending: false });
+
+    // 非管理员只能看到自己删除的
+    if (!isAdmin) {
+        query = query.eq('deleted_by', user.id);
+    }
+
+    const { data, error } = await query.limit(100);
+    if (error) throw new Error(error.message || "获取删除历史失败");
+    return data || [];
+};
+
+// 恢复已删除歌曲
+export const restoreSong = async (id: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("请先登录");
+
+    const { error } = await supabase
+        .from('songs')
+        .update({
+            deleted_at: null,
+            deleted_by: null
+        })
+        .eq('id', id)
+        .not('deleted_at', 'is', null);
+
+    if (error) throw new Error(error.message || "恢复失败");
+};
+
+// 永久删除 (仅管理员)
+export const permanentlyDeleteSong = async (id: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || user.email !== ADMIN_EMAIL) {
+        throw new Error("权限不足：仅管理员可永久删除");
+    }
+
+    const { error } = await supabase
+        .from('songs')
+        .delete()
+        .eq('id', id);
+
+    if (error) throw new Error(error.message || "永久删除失败");
 };
 
 const fetchWithTimeout = async (url: string, timeout = 15000): Promise<Response> => {

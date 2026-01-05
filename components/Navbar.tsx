@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Music, PlusCircle, Compass, LogIn, User, ShieldCheck, Sun, Moon, X, Loader2, Save } from 'lucide-react';
+import { Music, PlusCircle, Compass, LogIn, User, ShieldCheck, Sun, Moon, X, Loader2, Save, History } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useTheme } from '../context/ThemeContext';
 import { bulkUpdateArtistName } from '../services/realSunoService';
@@ -136,6 +136,17 @@ const Navbar: React.FC<NavbarProps> = ({ onlineCount = 1 }) => {
               <PlusCircle size={18} />
               <span className="hidden sm:inline">发布</span>
             </Link>
+
+            {user && (
+              <Link
+                to="/deleted-history"
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${isActive('/deleted-history')}`}
+                title="删除历史"
+              >
+                <History size={18} />
+                <span className="hidden sm:inline">历史</span>
+              </Link>
+            )}
 
             {user ? (
               <div className="flex items-center gap-2 ml-2 pl-2 border-l border-white/20">

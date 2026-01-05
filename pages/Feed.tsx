@@ -246,20 +246,6 @@ const Feed: React.FC = () => {
                                                         {isSelected ? <CheckSquare size={16} /> : <Square size={16} />}
                                                     </div>
                                                 )}
-
-                                                {!isManageMode && canDelete && (
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.preventDefault();
-                                                            e.stopPropagation();
-                                                            handleDeleteClick(song);
-                                                        }}
-                                                        className="absolute top-2 right-2 p-1.5 bg-red-500/80 hover:bg-red-600 text-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 z-[100] cursor-pointer"
-                                                        title="快速删除"
-                                                    >
-                                                        <Trash2 size={14} />
-                                                    </button>
-                                                )}
                                             </div>
                                         </div>
                                         <div className="font-bold text-gray-900 dark:text-white text-sm truncate mb-0.5">{song.title}</div>
@@ -274,7 +260,35 @@ const Feed: React.FC = () => {
                                             <div className="flex gap-2 text-[10px] text-gray-400"><span className="flex items-center gap-0.5"><Headphones size={10} /> {song.plays_count || 0}</span></div>
                                             {!isManageMode && (
                                                 <div className="flex gap-1">
-                                                    <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToQueue(song); setAddedId(song.id!); setTimeout(() => setAddedId(null), 1500); }} className={`p-1.5 rounded-lg transition ${addedId === song.id ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400 hover:text-indigo-600 hover:bg-gray-50 dark:hover:bg-gray-700'}`}>{addedId === song.id ? <CheckCircle size={14} /> : <ListPlus size={14} />}</button>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            addToQueue(song);
+                                                            setAddedId(song.id!);
+                                                            setTimeout(() => setAddedId(null), 1500);
+                                                        }}
+                                                        className={`p-1.5 rounded-lg transition ${addedId === song.id ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400 hover:text-indigo-600 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                                                        data-testid={`add-to-queue-${song.id}`}
+                                                        aria-label={`添加 ${song.title} 到播放列表`}
+                                                    >
+                                                        {addedId === song.id ? <CheckCircle size={14} /> : <ListPlus size={14} />}
+                                                    </button>
+                                                    {canDelete && (
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                handleDeleteClick(song);
+                                                            }}
+                                                            className="p-1.5 rounded-lg transition text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                            data-testid={`delete-${song.id}`}
+                                                            aria-label={`删除 ${song.title}`}
+                                                            title="删除"
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
@@ -343,6 +357,7 @@ const Feed: React.FC = () => {
                                 <button
                                     onClick={() => setDeleteTarget(null)}
                                     className="flex-1 py-2.5 rounded-xl font-bold text-sm bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                                    data-testid="delete-modal-cancel"
                                 >
                                     取消
                                 </button>
@@ -350,6 +365,7 @@ const Feed: React.FC = () => {
                                     onClick={confirmDelete}
                                     disabled={isLoading}
                                     className="flex-1 py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-500/30 transition flex items-center justify-center gap-2"
+                                    data-testid="delete-modal-confirm"
                                 >
                                     {isLoading ? <Loader2 size={16} className="animate-spin" /> : '确认删除'}
                                 </button>

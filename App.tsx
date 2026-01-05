@@ -6,6 +6,7 @@ import Feed from './pages/Feed';
 import Publish from './pages/Publish';
 import Player from './pages/Player';
 import Login from './pages/Login';
+import DeletedSongsHistory from './pages/DeletedSongsHistory';
 import { ThemeProvider } from './context/ThemeContext';
 import { PlayerProvider } from './context/PlayerContext';
 
@@ -20,6 +21,7 @@ const App: React.FC = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/publish" element={<Publish />} />
               <Route path="/song/:songId" element={<Player />} />
+              <Route path="/deleted-history" element={<DeletedSongsHistory />} />
             </Routes>
           </Layout>
         </Router>
