@@ -52,6 +52,9 @@ const Feed: React.FC = () => {
     // 底部播放器状态 (简化版)
     const [bottomPlayerSong, setBottomPlayerSong] = useState<Song | null>(null);
 
+    // 播放队列显示状态
+    const [showQueue, setShowQueue] = useState(false);
+
     const isAdmin = currentUser?.email === ADMIN_EMAIL;
 
     useEffect(() => {
