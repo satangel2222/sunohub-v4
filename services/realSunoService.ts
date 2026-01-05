@@ -95,7 +95,7 @@ export const deleteSong = async (id: string) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("请先登录");
 
-    const { error, count } = await supabase
+    const { data, error } = await supabase
         .from('songs')
         .update({
             deleted_at: new Date().toISOString(),
@@ -103,10 +103,10 @@ export const deleteSong = async (id: string) => {
         })
         .eq('id', id)
         .is('deleted_at', null)
-        .select('*', { count: 'exact' });
+        .select();
 
     if (error) throw new Error(error.message || "删除失败");
-    if (count === 0) throw new Error("删除失败：权限不足或歌曲不存在");
+    if (!data || data.length === 0) throw new Error("删除失败:权限不足或歌曲不存在");
 };
 
 // 批量软删除
@@ -116,7 +116,7 @@ export const deleteSongs = async (ids: string[]) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("请先登录");
 
-    const { error, count } = await supabase
+    const { data, error } = await supabase
         .from('songs')
         .update({
             deleted_at: new Date().toISOString(),
@@ -124,10 +124,10 @@ export const deleteSongs = async (ids: string[]) => {
         })
         .in('id', ids)
         .is('deleted_at', null)
-        .select('*', { count: 'exact' });
+        .select();
 
     if (error) throw new Error(error.message || "批量删除失败");
-    if (count === 0) throw new Error("操作无效：没有歌曲被删除");
+    if (!data || data.length === 0) throw new Error("操作无效:没有歌曲被删除");
 };
 
 // 获取删除历史
