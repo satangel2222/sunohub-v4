@@ -103,7 +103,7 @@ export const deleteSong = async (id: string) => {
         })
         .eq('id', id)
         .is('deleted_at', null)
-        .select('id', { count: 'exact' });
+        .select('*', { count: 'exact' });
 
     if (error) throw new Error(error.message || "删除失败");
     if (count === 0) throw new Error("删除失败：权限不足或歌曲不存在");
@@ -124,7 +124,7 @@ export const deleteSongs = async (ids: string[]) => {
         })
         .in('id', ids)
         .is('deleted_at', null)
-        .select('id', { count: 'exact' });
+        .select('*', { count: 'exact' });
 
     if (error) throw new Error(error.message || "批量删除失败");
     if (count === 0) throw new Error("操作无效：没有歌曲被删除");
