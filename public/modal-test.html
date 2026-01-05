@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模态框测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 p-8">
+    <h1 class="text-2xl font-bold mb-4">删除模态框测试</h1>
+
+    <button id="testBtn" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700">
+        测试删除模态框
+    </button>
+
+    <!-- Modal -->
+    <div id="modal"
+        class="hidden fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        onclick="if (event.target === event.currentTarget) closeModal()">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6" onclick="event.stopPropagation()">
+            <div class="flex flex-col items-center text-center gap-4">
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18"></path>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">确认删除?</h3>
+                    <p class="text-sm text-gray-500">
+                        您确定要删除这首歌曲吗？<br />删除后可在历史记录中恢复。
+                    </p>
+                </div>
+                <div class="flex gap-3 w-full mt-2">
+                    <button onclick="closeModal()"
+                        class="flex-1 py-2.5 rounded-xl font-bold text-sm bg-gray-100 text-gray-600 hover:bg-gray-200">
+                        取消
+                    </button>
+                    <button onclick="confirmDelete()"
+                        class="flex-1 py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white hover:bg-red-700">
+                        确认删除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('modal');
+        const testBtn = document.getElementById('testBtn');
+
+        testBtn.addEventListener('click', () => {
+            modal.classList.remove('hidden');
+            console.log('Modal opened');
+        });
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            console.log('Modal closed');
+        }
+
+        function confirmDelete() {
+            alert('删除成功!');
+            closeModal();
+        }
+
+        // 测试模态框是否可见
+        console.log('Modal element:', modal);
+        console.log('Modal z-index:', window.getComputedStyle(modal).zIndex);
+    </script>
+</body>
+
+</html>

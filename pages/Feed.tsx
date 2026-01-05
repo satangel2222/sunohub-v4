@@ -7,6 +7,7 @@ import { getSongFeed, SortFilter, deleteSong, deleteSongs } from '../services/re
 import { supabase } from '../lib/supabaseClient';
 import { usePlayer } from '../context/PlayerContext';
 import PlaylistSidebar from '../components/PlaylistSidebar';
+import { BottomPlayer } from '../components/BottomPlayer';
 
 const ADMIN_EMAIL = '774frank1@gmail.com';
 
@@ -45,7 +46,19 @@ const Feed: React.FC = () => {
     const { addToQueue } = usePlayer();
     const navigate = useNavigate();
 
+    // 移动端检测
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    // 底部播放器状态 (简化版)
+    const [bottomPlayerSong, setBottomPlayerSong] = useState<Song | null>(null);
+
     const isAdmin = currentUser?.email === ADMIN_EMAIL;
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         supabase.auth.getUser().then(({ data: { user } }) => {
@@ -274,7 +287,7 @@ const Feed: React.FC = () => {
                         </div>
 
                         {isLoading ? <div className="text-center py-20"><Loader2 className="animate-spin mx-auto text-indigo-600" /></div> : (
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                            <div className={isMobile ? "flex flex-col gap-2" : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"}>
                                 {filteredSongs.map((song) => {
                                     const isOwner = currentUser && song.user_id === currentUser.id;
                                     const canDelete = isAdmin || isOwner;
@@ -320,6 +333,7 @@ const Feed: React.FC = () => {
                                                                 e.preventDefault();
                                                                 e.stopPropagation();
                                                                 addToQueue(song);
+                                                                setBottomPlayerSong(song);
                                                                 setAddedId(song.id!);
                                                                 setTimeout(() => setAddedId(null), 1500);
                                                             }}
@@ -391,8 +405,16 @@ const Feed: React.FC = () => {
                     </div>
                 )}
             </div>
+                    {/* 底部播放器 - 仅移动端 */}
+            <BottomPlayer 
+                song={bottomPlayerSong}
+                isPlaying={false}
+                onTogglePlay={() => {}}
+                progress={0}
+            />
         </>
     );
 };
 
 export default Feed;
+
