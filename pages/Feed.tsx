@@ -126,8 +126,12 @@ const Feed: React.FC = () => {
             // Close modal
             setDeleteTarget(null);
         } catch (err: any) {
-            alert("删除失败: " + err.message);
+            console.error('删除失败:', err);
+            alert("删除失败: " + (err.message || '未知错误'));
+            // 确保即使失败也关闭模态框
+            setDeleteTarget(null);
         } finally {
+            // 确保 loading 状态总是被重置
             setIsLoading(false);
         }
     };
