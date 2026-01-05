@@ -88,15 +88,18 @@ export const incrementPlays = async (id: string) => {
 };
 
 export const deleteSong = async (id: string) => {
-    const { error } = await supabase.from('songs').delete().eq('id', id);
+    const { error, count } = await supabase.from('songs').delete({ count: 'exact' }).eq('id', id);
     if (error) throw new Error(error.message || "删除失败");
+    if (count === 0) throw new Error("删除失败：权限不足或歌曲不存在 (请检查数据库 RLS 策略)");
 };
 
 // 批量删除接口
 export const deleteSongs = async (ids: string[]) => {
     if (!ids || ids.length === 0) return;
-    const { error } = await supabase.from('songs').delete().in('id', ids);
+    const { error, count } = await supabase.from('songs').delete({ count: 'exact' }).in('id', ids);
     if (error) throw new Error(error.message || "批量删除失败");
+    // 批量删除时，如果部分失败，count 可能小于 ids.length，这里主要防 0
+    if (count === 0) throw new Error("操作无效：没有歌曲被删除 (权限不足)");
 };
 
 const fetchWithTimeout = async (url: string, timeout = 15000): Promise<Response> => {
