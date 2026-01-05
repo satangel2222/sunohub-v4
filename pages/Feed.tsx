@@ -245,7 +245,7 @@ const Feed: React.FC = () => {
                             </div>
                         )}
 
-                        {!artistFilter && filter !== 'mine' && !isManageMode && (
+                        {!isMobile && !artistFilter && filter !== 'mine' && !isManageMode && (
                             <div className="bg-gradient-to-br from-indigo-600 to-purple-800 dark:from-indigo-900 dark:to-purple-950 rounded-3xl p-8 text-white mb-8 shadow-xl relative overflow-hidden">
                                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                                     <div className="max-w-md text-center md:text-left">
@@ -263,7 +263,7 @@ const Feed: React.FC = () => {
                         )}
 
                         <div className="flex items-center justify-between gap-4 mb-6 sticky top-[72px] bg-[#f8f9fc] dark:bg-[#030712] z-40 py-2 border-b dark:border-gray-800 lg:border-none">
-                            <div className="relative w-full max-w-[120px] sm:max-w-xs">
+                            <div className={`relative ${isMobile ? 'w-16' : 'w-full max-w-[120px] sm:max-w-xs'}`}>
                                 <div className="flex items-center bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
                                     <Search className="ml-3 text-gray-400 shrink-0" size={14} />
                                     <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="搜索..." className="w-full py-2 px-2 bg-transparent outline-none dark:text-white text-xs sm:text-sm" />
@@ -327,7 +327,7 @@ const Feed: React.FC = () => {
                                                 </div>
                                             </div>
                                             <div className={isMobile ? "flex-1 min-w-0" : ""}>
-                                                <div className={`font-bold text-gray-900 dark:text-white text-sm ${isMobile ? 'truncate' : 'line-clamp-2'} mb-0.5`}>{song.title}</div>
+                                                <div className={`font-bold text-gray-900 dark:text-white text-sm ${isMobile ? (viewMode === 'grid' ? 'line-clamp-2' : 'truncate') : 'line-clamp-2'} mb-0.5`}>{song.title}</div>
                                                 <div className="flex flex-col mb-2">
                                                     <button onClick={(e) => { if (!isManageMode) handleArtistClick(e, song.artist); }} className={`text-[11px] text-gray-500 text-left truncate ${!isManageMode && 'hover:text-indigo-500'}`}>{song.artist}</button>
                                                     {!isMobile && (
@@ -456,7 +456,7 @@ const Feed: React.FC = () => {
                                 <X size={20} />
                             </button>
                         </div>
-                        <div className="flex-1 overflow-auto p-4">
+                        <div className="flex-1 overflow-y-auto p-4">
                             <PlaylistSidebar />
                         </div>
                     </div>
