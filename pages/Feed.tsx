@@ -444,7 +444,7 @@ const Feed: React.FC = () => {
             {showQueue && isMobile && (
                 <div className="fixed inset-0 z-[100] bg-black/50" onClick={() => setShowQueue(false)}>
                     <div
-                        className="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-2xl max-h-[80vh] overflow-auto"
+                        className="fixed inset-x-0 bottom-0 top-[20vh] bg-white dark:bg-gray-800 rounded-t-2xl flex flex-col"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between shrink-0">
