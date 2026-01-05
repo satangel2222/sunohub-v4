@@ -303,7 +303,7 @@ const Feed: React.FC = () => {
                                                     )}
                                                 </div>
                                             </div>
-                                            <div className="font-bold text-gray-900 dark:text-white text-sm truncate mb-0.5">{song.title}</div>
+                                            <div className="font-bold text-gray-900 dark:text-white text-sm line-clamp-2 mb-0.5">{song.title}</div>
                                             <div className="flex flex-col mb-2">
                                                 <button onClick={(e) => { if (!isManageMode) handleArtistClick(e, song.artist); }} className={`text-[11px] text-gray-500 text-left truncate ${!isManageMode && 'hover:text-indigo-500'}`}>{song.artist}</button>
                                                 <div className="flex items-center gap-1 text-[10px] text-gray-400 mt-0.5">
