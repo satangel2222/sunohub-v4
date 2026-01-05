@@ -195,27 +195,43 @@ const Publish: React.FC = () => {
     setIsBatchProcessing(true);
     const total = batchItems.length;
     setBatchProgress({ current: 0, total, percentage: 0 });
+
     for (let i = 0; i < batchItems.length; i++) {
       const item = batchItems[i];
 
-      // 更新进度
-      setBatchProgress({ current: i + 1, total, percentage: Math.round(((i + 1) / total) * 100) });
-
       // 只跳过已经完成的 (completed)。idle 或 error 的都要跑
-      if (item.status === 'completed') continue;
-      if (item.status === 'ready' && item.songData?.title !== 'Untitled' && item.songData?.artist !== 'Suno AI') continue;
+      if (item.status === 'completed') {
+        // 跳过的项也要计入进度
+        setBatchProgress({ current: i + 1, total, percentage: Math.round(((i + 1) / total) * 100) });
+        continue;
+      }
+      if (item.status === 'ready' && item.songData?.title !== 'Untitled' && item.songData?.artist !== 'Suno AI') {
+        setBatchProgress({ current: i + 1, total, percentage: Math.round(((i + 1) / total) * 100) });
+        continue;
+      }
 
       setBatchItems(prev => prev.map((it, idx) => idx === i ? { ...it, status: 'analyzing', message: '正在云端抓取元数据...' } : it));
 
       try {
-        // 调用那个“单独发布能成功”的后端解析器
-        const song = await parseSunoLink(item.originalUrl);
+        // 添加超时保护 (30秒)
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('解析超时')), 30000)
+        );
+
+        const parsePromise = parseSunoLink(item.originalUrl);
+
+        const song = await Promise.race([parsePromise, timeoutPromise]) as any;
         if ((!song.artist || song.artist === 'Suno AI') && user?.user_metadata?.nickname) song.artist = user.user_metadata.nickname;
 
         setBatchItems(prev => prev.map((it, idx) => idx === i ? { ...it, status: 'ready', songData: song } : it));
       } catch (e: any) {
-        setBatchItems(prev => prev.map((it, idx) => idx === i ? { ...it, status: 'error', message: "解析失败" } : it));
+        console.error(`解析失败 [${i + 1}/${total}]:`, e);
+        setBatchItems(prev => prev.map((it, idx) => idx === i ? { ...it, status: 'error', message: e.message || "解析失败" } : it));
       }
+
+      // 更新进度 (处理完成后)
+      setBatchProgress({ current: i + 1, total, percentage: Math.round(((i + 1) / total) * 100) });
+
       // 适当延时防止被封 IP
       await new Promise(resolve => setTimeout(resolve, 800));
     }
