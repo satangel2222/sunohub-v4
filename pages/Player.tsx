@@ -296,12 +296,12 @@ const Player: React.FC = () => {
 
         // 3. Construct Magic Link (server-side proxy for rich previews)
         if (finalId) {
-            return `https://sunohub-v4.vercel.app/s/${finalId}`;
+            return `https://tunenora.com/song/${song?.suno_id}`;
         }
 
         // 4. Absolute Fallback
-        return 'https://sunohub-v4.vercel.app/';
-    }, [songId]);
+        return 'https://tunenora.com/';
+    }, [songId, song?.suno_id]); // Added song?.suno_id to dependencies
 
     // Unified Super Hook Text
     const shareText = useMemo(() => {

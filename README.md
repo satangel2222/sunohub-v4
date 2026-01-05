@@ -38,7 +38,7 @@ Tunenora 是一个专为 AI 音乐创作者打造的增强工具平台。它不�
    - 如果您使用的是云端 IDE（如 Project IDX, StackBlitz），通常侧边栏会有 "Source Control" 按钮，点击 "Publish to GitHub"。
 
 ### 第二步：在 Vercel 导入项目
-1. 注册并登录 [Vercel.com](https://vercel.com)。
+1. 注册并登录 [Vercel Dashboard](https://vercel.com/dashboard)。
 2. 在 Dashboard 点击黑色的 **"Add New..."** 按钮，选择 **"Project"**。
 3. 在左侧 "Import Git Repository" 列表中，找到您的 `Tunenora` 仓库，点击 **"Import"**。
 
@@ -56,7 +56,7 @@ Tunenora 是一个专为 AI 音乐创作者打造的增强工具平台。它不�
 1. 检查 Framework Preset 是否自动识别为 **Vite** (通常会自动识别)。
 2. 点击蓝色的 **"Deploy"** 按钮。
 3. 等待约 1 分钟，Vercel 会自动构建、打包并发布。
-4. 完成后，您会看到满屏的撒花特效。点击 **"Visit"** 即可获得您的专属永久域名（例如 `https://tunenora-yourname.vercel.app`）。
+4. 完成后，您会看到满屏的撒花特效。点击 **"Visit"** 即可获得您的专属永久域名（例如 `https://tunenora.com`）。
 
 🎉 **现在，把这个链接分享给朋友，他们就能完美打开了！**
 

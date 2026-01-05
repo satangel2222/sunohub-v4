@@ -40,13 +40,13 @@ export default async function handler(request, response) {
         const description = `Listen to this AI-generated masterpiece on Tunenora.`;
         const imageUrl = song.image_url;
         const audioUrl = song.audio_url;
-        const appUrl = `https://sunohub-v4.vercel.app/song/${id}`;
+        const finalRedirectUrl = `https://tunenora.com/song/${id}`;
 
         // Preserve query params
         const queryParams = new URLSearchParams(request.query);
         queryParams.delete('id');
         const queryString = queryParams.toString();
-        const finalRedirectUrl = queryString ? `${appUrl}?${queryString}` : appUrl;
+        const appUrl = queryString ? `${finalRedirectUrl}?${queryString}` : finalRedirectUrl;
 
         const html = `
       <!DOCTYPE html>
