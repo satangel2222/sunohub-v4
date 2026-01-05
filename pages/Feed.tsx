@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Play, TrendingUp, Clock, Headphones, Star, Search, Loader2, ListPlus, CheckCircle, ArrowRight, Calendar, User, History, Trash2, Heart, CheckSquare, Square, X, Settings2, ShieldCheck, Music, Library } from 'lucide-react';
+import { Play, TrendingUp, Clock, Headphones, Star, Search, Loader2, ListPlus, CheckCircle, ArrowRight, Calendar, User, History, Trash2, Heart, CheckSquare, Square, X, Settings2, ShieldCheck, Music, Library, Grid, List } from 'lucide-react';
 import { Song } from '../types';
 import { getSongFeed, SortFilter, deleteSong, deleteSongs } from '../services/realSunoService';
 import { supabase } from '../lib/supabaseClient';
@@ -54,6 +54,9 @@ const Feed: React.FC = () => {
 
     // 播放队列显示状态
     const [showQueue, setShowQueue] = useState(false);
+
+    // 移动端视图模式
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
 
     const isAdmin = currentUser?.email === ADMIN_EMAIL;
 
@@ -290,7 +293,10 @@ const Feed: React.FC = () => {
                         </div>
 
                         {isLoading ? <div className="text-center py-20"><Loader2 className="animate-spin mx-auto text-indigo-600" /></div> : (
-                            <div className={isMobile ? "flex flex-col gap-1" : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"}>
+                            <div className={isMobile
+                                ? (viewMode === 'grid' ? "grid grid-cols-2 gap-2" : "flex flex-col gap-1")
+                                : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+                            }>
                                 {filteredSongs.map((song) => {
                                     const isOwner = currentUser && song.user_id === currentUser.id;
                                     const canDelete = isAdmin || isOwner;
@@ -413,13 +419,59 @@ const Feed: React.FC = () => {
                     </div>
                 )}
             </div>
-            {/* 底部播放器 - 仅移动端 */}
-            <BottomPlayer
-                song={bottomPlayerSong}
-                isPlaying={false}
-                onTogglePlay={() => { }}
-                progress={0}
-            />
+
+            {/* 移动端控制按钮 */}
+            {isMobile && (
+                <div className="fixed bottom-20 right-4 z-50 flex flex-col gap-2">
+                    <button
+                        onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
+                        className="p-3 rounded-full bg-white dark:bg-gray-800 text-indigo-600 shadow-lg border border-gray-200 dark:border-gray-700"
+                        title={viewMode === 'grid' ? '切换到列表' : '切换到网格'}
+                    >
+                        {viewMode === 'grid' ? <List size={20} /> : <Grid size={20} />}
+                    </button>
+                    <button
+                        onClick={() => setShowQueue(true)}
+                        className="p-3 rounded-full bg-indigo-600 text-white shadow-lg"
+                        title="播放队列"
+                    >
+                        <Library size={20} />
+                    </button>
+                </div>
+            )}
+
+            {/* 播放队列弹窗 */}
+            {showQueue && isMobile && (
+                <div className="fixed inset-0 z-[100] bg-black/50" onClick={() => setShowQueue(false)}>
+                    <div
+                        className="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-2xl max-h-[80vh] overflow-auto"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between sticky top-0 bg-white dark:bg-gray-800 z-10">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">播放队列</h2>
+                            <button
+                                onClick={() => setShowQueue(false)}
+                                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="p-4">
+                            <PlaylistSidebar />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 底部播放器 - 仅移动端且有歌曲时显示 */}
+            {isMobile && bottomPlayerSong && (
+                <BottomPlayer
+                    song={bottomPlayerSong}
+                    isPlaying={false}
+                    onTogglePlay={() => { }}
+                    progress={0}
+                />
+            )}
         </>
     );
 };
