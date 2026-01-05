@@ -287,7 +287,7 @@ const Feed: React.FC = () => {
                         </div>
 
                         {isLoading ? <div className="text-center py-20"><Loader2 className="animate-spin mx-auto text-indigo-600" /></div> : (
-                            <div className={isMobile ? "flex flex-col gap-2" : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"}>
+                            <div className={isMobile ? "flex flex-col gap-1" : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"}>
                                 {filteredSongs.map((song) => {
                                     const isOwner = currentUser && song.user_id === currentUser.id;
                                     const canDelete = isAdmin || isOwner;
@@ -297,7 +297,7 @@ const Feed: React.FC = () => {
                                         <div
                                             key={song.id}
                                             onClick={() => isManageMode && canDelete && toggleSelection(song.id!)}
-                                            className={`group bg-white dark:bg-gray-800 rounded-xl shadow-sm transition border ${isMobile ? 'flex items-center gap-3 p-3' : 'flex flex-col p-3'
+                                            className={`group bg-white dark:bg-gray-800 rounded-xl shadow-sm transition border ${isMobile ? 'flex items-center gap-2 p-2' : 'flex flex-col p-3'
                                                 } relative ${isManageMode ? (canDelete ? 'cursor-pointer' : 'opacity-40 grayscale cursor-not-allowed') : 'cursor-default'} ${isSelected ? 'border-indigo-500 ring-4 ring-indigo-500/10' : 'border-gray-100 dark:border-gray-700 hover:shadow-lg'}`}
                                         >
                                             <div className={isMobile ? "shrink-0" : "block relative mb-2"}>
@@ -326,45 +326,43 @@ const Feed: React.FC = () => {
                                                         <span>{timeAgo(song.created_at)}</span>
                                                     </div>
                                                 </div>
-                                                {!isMobile && (
-                                                    <div className="flex items-center justify-between pt-2 border-t border-gray-50 dark:border-gray-700 mt-auto">
-                                                        <div className="flex gap-2 text-[10px] text-gray-400"><span className="flex items-center gap-0.5"><Headphones size={10} /> {song.plays_count || 0}</span></div>
-                                                        {!isManageMode && (
-                                                            <div className="flex gap-1">
+                                                <div className="flex items-center justify-between pt-2 border-t border-gray-50 dark:border-gray-700 mt-auto">
+                                                    <div className="flex gap-2 text-[10px] text-gray-400"><span className="flex items-center gap-0.5"><Headphones size={10} /> {song.plays_count || 0}</span></div>
+                                                    {!isManageMode && (
+                                                        <div className={`flex gap-1 ${isMobile ? 'w-full justify-end' : ''}`}>
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    e.stopPropagation();
+                                                                    addToQueue(song);
+                                                                    setBottomPlayerSong(song);
+                                                                    setAddedId(song.id!);
+                                                                    setTimeout(() => setAddedId(null), 1500);
+                                                                }}
+                                                                className={`p-1.5 rounded-lg transition ${addedId === song.id ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400 hover:text-indigo-600 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                                                                data-testid={`add-to-queue-${song.id}`}
+                                                                aria-label={`添加 ${song.title} 到播放列表`}
+                                                            >
+                                                                {addedId === song.id ? <CheckCircle size={14} /> : <ListPlus size={14} />}
+                                                            </button>
+                                                            {canDelete && (
                                                                 <button
                                                                     onClick={(e) => {
                                                                         e.preventDefault();
                                                                         e.stopPropagation();
-                                                                        addToQueue(song);
-                                                                        setBottomPlayerSong(song);
-                                                                        setAddedId(song.id!);
-                                                                        setTimeout(() => setAddedId(null), 1500);
+                                                                        handleDeleteClick(song);
                                                                     }}
-                                                                    className={`p-1.5 rounded-lg transition ${addedId === song.id ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400 hover:text-indigo-600 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
-                                                                    data-testid={`add-to-queue-${song.id}`}
-                                                                    aria-label={`添加 ${song.title} 到播放列表`}
+                                                                    className="p-1.5 rounded-lg transition text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                                    data-testid={`delete-${song.id}`}
+                                                                    aria-label={`删除 ${song.title}`}
+                                                                    title="删除"
                                                                 >
-                                                                    {addedId === song.id ? <CheckCircle size={14} /> : <ListPlus size={14} />}
+                                                                    <Trash2 size={14} />
                                                                 </button>
-                                                                {canDelete && (
-                                                                    <button
-                                                                        onClick={(e) => {
-                                                                            e.preventDefault();
-                                                                            e.stopPropagation();
-                                                                            handleDeleteClick(song);
-                                                                        }}
-                                                                        className="p-1.5 rounded-lg transition text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                                                        data-testid={`delete-${song.id}`}
-                                                                        aria-label={`删除 ${song.title}`}
-                                                                        title="删除"
-                                                                    >
-                                                                        <Trash2 size={14} />
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     );
