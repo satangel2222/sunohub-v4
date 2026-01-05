@@ -447,7 +447,7 @@ const Feed: React.FC = () => {
                         className="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-2xl max-h-[80vh] overflow-auto"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between sticky top-0 bg-white dark:bg-gray-800 z-10">
+                        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between shrink-0">
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white">播放队列</h2>
                             <button
                                 onClick={() => setShowQueue(false)}
@@ -456,7 +456,7 @@ const Feed: React.FC = () => {
                                 <X size={20} />
                             </button>
                         </div>
-                        <div className="p-4">
+                        <div className="flex-1 overflow-auto p-4">
                             <PlaylistSidebar />
                         </div>
                     </div>
